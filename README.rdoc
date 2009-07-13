@@ -1,0 +1,7 @@
+= asset_library
+
+Description goes here.
+
+== Copyright
+
+Copyright (c) 2009 adamh. See LICENSE for details.
