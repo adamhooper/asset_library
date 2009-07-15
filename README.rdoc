@@ -136,14 +136,13 @@ JavaScript or CSS files.
 files with <tt>optional_suffix</tt> suffixes, falling back to files without
 <tt>optional_suffix</tt> if necessary. For instance, if you run all your
 JavaScript files through
-<a href="http://developer.yahoo.com/yui/compressor/">YUI Compressor</a> and
-output the compressed version of <tt>file1.js</tt> as
-<tt>file1.compressed.js</tt>, then set <tt>optional_suffix</tt> to
-<tt>compressed</tt>. In your development environment, where <tt>compressed</tt>
-javascripts are missing, <tt>file1.js</tt> will be included and you can debug
-your JavaScript. In your production environment, create the <tt>compressed</tt>
-JavaScripts in the same directory, and they will be included instead, for
-optimal download speed.
+{YUI Compressor}[http://developer.yahoo.com/yui/compressor/] and output the
+compressed version of <tt>file1.js</tt> as <tt>file1.compressed.js</tt>, then
+set <tt>optional_suffix</tt> to <tt>compressed</tt>. In your development
+environment, where <tt>compressed</tt> javascripts are missing,
+<tt>file1.js</tt> will be included and you can debug your JavaScript. In your
+production environment, create the <tt>compressed</tt> JavaScripts in the same
+directory, and they will be included instead, for optimal download speed.
 
 <tt>files</tt> is a list of files, relative to <tt>base</tt>. File globbing is
 allowed; <tt>**</tt> expands to "any nesting of directories". Files which do
