@@ -33,10 +33,10 @@ Two methods are made available for your views:
   <![endif]-->
 
 Both helpers behave differently depending on whether
-@ActionController::Base.perform_caching@ is true (that is, whether you are in
-@development@ environment or not). When caching is disabled, each file in the
-module will be included. (Internet Explorer only allows 30 @style@ and @link@
-stylesheet tags; in development mode, @import@ rules are used to work around
+<tt>ActionController::Base.perform_caching</tt> is true (that is, whether you are in
+<tt>development</tt> environment or not). When caching is disabled, each file in the
+module will be included. (Internet Explorer only allows 30 <tt>style</tt> and <tt>link</tt>
+stylesheet tags; in development mode, <tt>import</tt> rules are used to work around
 the bug.) When caching is enabled, a single tag is output.
 
 When caching is enabled, the modules to include must be generated using:
@@ -108,45 +108,49 @@ A typical configuration (Yaml) file might look like this:
 
 Here are what the various configuration elements mean:
 
-@module_name@ is the name of the module. It is passed as the first parameter to
-@asset_library_javascript_tags@ or @asset_library_stylesheet_tags@.
+<tt>module_name</tt> is the name of the module. It is passed as the first
+parameter to <tt>asset_library_javascript_tags</tt> or
+<tt>asset_library_stylesheet_tags</tt>.
 
-@cache@ is a filename, without suffix, relative to @base@, where the module
-will be bundled when caching is enabled. (Ensure that @files@ does not include
-@cache_file@, even with globbing.)
+<tt>cache</tt> is a filename, without suffix, relative to <tt>base</tt>, where
+the module will be bundled when caching is enabled. (Ensure that <tt>files</tt>
+does not include <tt>cache_file</tt>, even with globbing.)
 
-@base@ is the base path of the assets in URLs. For instance, in Rails, where
-stylesheets are usually served under @/stylesheets@, @base@ should be
-@stylesheets@.
+<tt>base</tt> is the base path of the assets in URLs. For instance, in Rails,
+where stylesheets are usually served under <tt>/stylesheets</tt>, <tt>base</tt>
+should be <tt>stylesheets</tt>.
 
-@suffix@ is either "js" or "css", depending on whether you are including
+<tt>suffix</tt> is either "js" or "css", depending on whether you are including
 JavaScript or CSS files.
 
-@extra_suffixes@ allows construction of parallel modules. If you specify
-@extra_suffixes@ as ['ie6', 'ie7'], @files@ as @file1@ and @file2@,
-@module_name@ as @module@, and @suffix@ as @css@, then three modules will be
-created (ignoring nonexistent files):
+<tt>extra_suffixes</tt> allows construction of parallel modules. If you specify
+<tt>extra_suffixes</tt> as ['ie6', 'ie7'], <tt>files</tt> as <tt>file1</tt> and
+<tt>file2</tt>, <tt>module_name</tt> as <tt>module</tt>, and <tt>suffix</tt> as
+<tt>css</tt>, then three modules will be created (ignoring nonexistent files):
 
-* @module.css@, the concatenation of @file1.css@ and @file2.css@
-* @module.ie6.css@, the concatenation of @file1.ie6.css@ and @file2.ie6.css@
-* @module.ie7.css@, the concatenation of @file1.ie7.css@ and @file2.ie7.css@
+* <tt>module.css</tt>, the concatenation of <tt>file1.css</tt> and <tt>file2.css</tt>
+* <tt>module.ie6.css</tt>, the concatenation of <tt>file1.ie6.css</tt> and <tt>file2.ie6.css</tt>
+* <tt>module.ie7.css</tt>, the concatenation of <tt>file1.ie7.css</tt> and <tt>file2.ie7.css</tt>
 
-@optional_suffix@ will cause asset_library to check for the existence of files
-with @optional_suffix@ suffixes, falling back to files without
-@optional_suffix@ if necessary. For instance, if you run all your JavaScript
-files through "YUI Compressor":http://developer.yahoo.com/yui/compressor/ and
-output the compressed version of @file1.js@ as @file1.compressed.js@, then
-set @optional_suffix@ to @compressed@. In your development environment, where
-@compressed@ javascripts are missing, @file1.js@ will be included and you can
-debug your JavaScript. In your production environment, create the @compressed@
+<tt>optional_suffix</tt> will cause asset_library to check for the existence of
+files with <tt>optional_suffix</tt> suffixes, falling back to files without
+<tt>optional_suffix</tt> if necessary. For instance, if you run all your
+JavaScript files through
+<a href="http://developer.yahoo.com/yui/compressor/">YUI Compressor</a> and
+output the compressed version of <tt>file1.js</tt> as
+<tt>file1.compressed.js</tt>, then set <tt>optional_suffix</tt> to
+<tt>compressed</tt>. In your development environment, where <tt>compressed</tt>
+javascripts are missing, <tt>file1.js</tt> will be included and you can debug
+your JavaScript. In your production environment, create the <tt>compressed</tt>
 JavaScripts in the same directory, and they will be included instead, for
 optimal download speed.
 
-@files@ is a list of files, relative to @base@. File globbing is allowed; @**@
-expands to "any nesting of directories". Files which do not exist will be
-excluded; globbing will include/exclude files with @extra_suffixes@ as
-appropriate; and files without @optional_suffix@ will not be output alongside
-files with the same name but lacking the suffix.
+<tt>files</tt> is a list of files, relative to <tt>base</tt>. File globbing is
+allowed; <tt>**</tt> expands to "any nesting of directories". Files which do
+not exist will be excluded; globbing will include/exclude files with
+<tt>extra_suffixes</tt> as appropriate; and files without
+<tt>optional_suffix</tt> will not be output alongside files with the same name
+but lacking the suffix.
 
 == Copyright
 
