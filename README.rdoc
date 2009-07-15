@@ -1,7 +1,160 @@
 = asset_library
 
-Description goes here.
+Bundles your JavaScript and CSS, so your development environment is simple to
+code and your production environment is as fast as possible.
+
+== Installation
+
+First, install the gem:
+
+  sudo gem install adamh-asset_library --source http://gems.github.com
+
+Next, add the gem into your Rails project's config/environment.rb:
+
+  config.gem 'adamh-asset_library', :lib => 'asset_library', :source => 'http://gems.github.com'
+
+Finally, include the Rake tasks in your project:
+
+  echo "require 'asset_library/rake_tasks'" > lib/tasks/asset_library.rake
+
+== Usage
+
+Two methods are made available for your views:
+
+  <% # outputs library.js (production) or its files (development) %>
+  <%= asset_library_javascript_tags(:library) %>
+
+  <% # outputs library.css (production) or its files (development) %>
+  <%= asset_library_stylesheet_tags(:library) %>
+
+  <% # outputs library.ie6.css (production) or its files (development) %>
+  <!--[if lte IE 6]>
+    <%= asset_library_stylesheet_tags(:library, 'ie6') %>
+  <![endif]-->
+
+Both helpers behave differently depending on whether
+@ActionController::Base.perform_caching@ is true (that is, whether you are in
+@development@ environment or not). When caching is disabled, each file in the
+module will be included. (Internet Explorer only allows 30 @style@ and @link@
+stylesheet tags; in development mode, @import@ rules are used to work around
+the bug.) When caching is enabled, a single tag is output.
+
+When caching is enabled, the modules to include must be generated using:
+
+  rake asset_library:write
+
+These moduels can be removed using:
+
+  rake asset_library:clean
+
+A cached module is simply the concatenation of its constituent files.
+
+== Configuration
+
+A typical configuration (Yaml) file might look like this:
+
+  javascripts:
+    cache: library
+    optional_suffix: compressed
+    base: javascripts
+    suffix: js
+    files:
+      - vendor/jquery
+
+      # jQuery UI parts we need
+      - vendor/jquery-ui/ui.core
+      - vendor/jquery-ui/ui.draggable
+      - vendor/jquery-ui/ui.droppable
+      - vendor/jquery-ui/ui.sortable
+      - vendor/jquery-ui/effects.core
+
+      - lib
+      - plugins/*
+      - application
+      - initializers/*
+
+  tiny_mce_javascripts:
+    # TinyMCE doesn't give us a choice on cache name
+    cache: vendor/tiny_mce/tiny_mce_gzip
+    optional_suffix: compressed
+    base: javascripts
+    suffix: js
+    files:
+      - vendor/tiny_mce/tiny_mce
+      # ... it's possible to bundle all of TinyMCE together with a bit of magic
+
+  stylesheets:
+    cache: library
+    base: stylesheets
+    suffix: css
+    extra_suffixes: [ie6, ie7, ie8]
+    files:
+      - reset
+      - application
+      - layout
+      - views/**/*
+
+  # in general...
+  #module_name:
+  #  cache: cache_file
+  #  base: base_path_of_assets_in_web_root
+  #  suffix: suffix ("css" or "js")
+  #  extra_suffixes: ["other_bundle_suffix_1", "other_bundle_suffix_2"]
+  #  optional_suffix: optional_suffix
+  #  files:
+  #    - file1_relative_to_base
+  #    - file2_relative_to_base
+  #    - ...
+
+Here are what the various configuration elements mean:
+
+@module_name@ is the name of the module. It is passed as the first parameter to
+@asset_library_javascript_tags@ or @asset_library_stylesheet_tags@.
+
+@cache@ is a filename, without suffix, relative to @base@, where the module
+will be bundled when caching is enabled. (Ensure that @files@ does not include
+@cache_file@, even with globbing.)
+
+@base@ is the base path of the assets in URLs. For instance, in Rails, where
+stylesheets are usually served under @/stylesheets@, @base@ should be
+@stylesheets@.
+
+@suffix@ is either "js" or "css", depending on whether you are including
+JavaScript or CSS files.
+
+@extra_suffixes@ allows construction of parallel modules. If you specify
+@extra_suffixes@ as ['ie6', 'ie7'], @files@ as @file1@ and @file2@,
+@module_name@ as @module@, and @suffix@ as @css@, then three modules will be
+created (ignoring nonexistent files):
+
+* @module.css@, the concatenation of @file1.css@ and @file2.css@
+* @module.ie6.css@, the concatenation of @file1.ie6.css@ and @file2.ie6.css@
+* @module.ie7.css@, the concatenation of @file1.ie7.css@ and @file2.ie7.css@
+
+@optional_suffix@ will cause asset_library to check for the existence of files
+with @optional_suffix@ suffixes, falling back to files without
+@optional_suffix@ if necessary. For instance, if you run all your JavaScript
+files through "YUI Compressor":http://developer.yahoo.com/yui/compressor/ and
+output the compressed version of @file1.js@ as @file1.compressed.js@, then
+set @optional_suffix@ to @compressed@. In your development environment, where
+@compressed@ javascripts are missing, @file1.js@ will be included and you can
+debug your JavaScript. In your production environment, create the @compressed@
+JavaScripts in the same directory, and they will be included instead, for
+optimal download speed.
+
+@files@ is a list of files, relative to @base@. File globbing is allowed; @**@
+expands to "any nesting of directories". Files which do not exist will be
+excluded; globbing will include/exclude files with @extra_suffixes@ as
+appropriate; and files without @optional_suffix@ will not be output alongside
+files with the same name but lacking the suffix.
 
 == Copyright
 
-Copyright (c) 2009 adamh. See LICENSE for details.
+I believe in software freedom, not any abomination thereof. This project is
+released under the Public Domain, meaning I relinquish my copyright (to any
+extend the law allows) and grant you all rights to use, modify, sell, or
+otherwise take advantage of my software.
+
+However, I do kindly request that, as a favor, you refrain from using my
+software as part of an evil plan involving velociraptors and mind-controlling
+robots (even though I would not be legally entitled to sue you for doing so). 

@@ -9,7 +9,7 @@ begin
     gem.email = "adam@adamhooper.com"
     gem.homepage = "http://github.com/adamh/asset_library"
     gem.authors = ["adamh"]
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+    gem.files = FileList['lib/**/*.rb', 'rails/**/*.rb'].to_a
   end
 
 rescue LoadError
