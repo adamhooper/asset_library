@@ -149,7 +149,7 @@ allowed; <tt>**</tt> expands to "any nesting of directories". Files which do
 not exist will be excluded; globbing will include/exclude files with
 <tt>extra_suffixes</tt> as appropriate; and files without
 <tt>optional_suffix</tt> will not be output alongside files with the same name
-but lacking the suffix.
+endowed with the suffix.
 
 == Copyright
 
