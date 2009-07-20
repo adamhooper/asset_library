@@ -29,7 +29,11 @@ class AssetLibrary
     end
 
     def import_styles_tag(urls)
-      urls.enum_slice(30).collect{ |subset| import_style_tag(subset) }.join("\n")
+      a = []
+      urls.each_slice(30) do |subset|
+        a << import_style_tag(subset)
+      end
+      a.join("\n")
     end
 
     def import_style_tag(urls)
