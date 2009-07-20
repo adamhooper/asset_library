@@ -19,25 +19,29 @@ Finally, include the Rake tasks in your project:
 
 == Usage
 
-Two methods are made available for your views:
+In your Rails project, edit <tt>config/asset_library.yml</tt> as described
+in the following section.
 
-  <% # outputs library.js (production) or its files (development) %>
-  <%= asset_library_javascript_tags(:library) %>
+Once configured, asset_library provides two helper methods for your views:
 
-  <% # outputs library.css (production) or its files (development) %>
-  <%= asset_library_stylesheet_tags(:library) %>
+  <%# outputs library.js (production) or its files (development) %>
+  <%= asset_library_javascript_tags(:javascripts) %>
 
-  <% # outputs library.ie6.css (production) or its files (development) %>
+  <%# outputs library.css (production) or its files (development) %>
+  <%= asset_library_stylesheet_tags(:stylesheets) %>
+
+  <%# outputs library.ie6.css (production) or its files (development) %>
   <!--[if lte IE 6]>
-    <%= asset_library_stylesheet_tags(:library, 'ie6') %>
+    <%= asset_library_stylesheet_tags(:stylesheets, 'ie6') %>
   <![endif]-->
 
 Both helpers behave differently depending on whether
-<tt>ActionController::Base.perform_caching</tt> is true (that is, whether you are in
-<tt>development</tt> environment or not). When caching is disabled, each file in the
-module will be included. (Internet Explorer only allows 30 <tt>style</tt> and <tt>link</tt>
-stylesheet tags; in development mode, <tt>import</tt> rules are used to work around
-the bug.) When caching is enabled, a single tag is output.
+<tt>ActionController::Base.perform_caching</tt> is true (that is, whether you
+are in <tt>development</tt> environment or not). When caching is disabled, each
+file in the module will be included. (Internet Explorer only allows 30
+<tt>style</tt> and <tt>link</tt> stylesheet tags; in development mode,
+<tt>import</tt> rules are used to work around the bug.) When caching is
+enabled, a single tag is output.
 
 When caching is enabled, the modules to include must be generated using:
 
@@ -51,7 +55,8 @@ A cached module is simply the concatenation of its constituent files.
 
 == Configuration
 
-A typical configuration (Yaml) file might look like this:
+A typical configuration (Yaml) file might look like this. In Rails, this
+should be in <tt>config/asset_library.yml</tt>.
 
   javascripts:
     cache: library
