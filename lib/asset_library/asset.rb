@@ -24,6 +24,8 @@ class AssetLibrary
 
     def timestamp
       File.mtime(absolute_path)
+    rescue Errno::ENOENT
+      nil
     end
 
     def relative_url
