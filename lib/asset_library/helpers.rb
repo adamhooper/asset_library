@@ -3,7 +3,8 @@ class AssetLibrary
     def asset_library_javascript_tags(module_key)
       m = AssetLibrary.asset_module(module_key)
       if AssetLibrary.cache
-        script_tag(m.cache_asset.relative_url)
+        @@asset_library_javascript_tags_cache ||= {}
+        @@asset_library_javascript_tags_cache[module_key] ||= script_tag(m.cache_asset.relative_url)
       else
         m.assets.collect{|a| script_tag(a.relative_url)}.join("\n")
       end
@@ -12,7 +13,8 @@ class AssetLibrary
     def asset_library_stylesheet_tags(module_key, extra_suffix = nil)
       m = AssetLibrary.asset_module(module_key)
       if AssetLibrary.cache
-        style_tag(m.cache_asset(extra_suffix).relative_url)
+        @@asset_library_stylesheet_tags_cache ||= {}
+        @@asset_library_stylesheet_tags_cache[[module_key, extra_suffix]] ||= style_tag(m.cache_asset(extra_suffix).relative_url)
       else
         import_styles_tag(m.assets(extra_suffix).collect{|a| a.relative_url})
       end
