@@ -32,7 +32,7 @@ Once configured, asset_library provides two helper methods for your views:
 
   <%# outputs library.ie6.css (production) or its files (development) %>
   <!--[if lte IE 6]>
-    <%= asset_library_stylesheet_tags(:stylesheets, 'ie6') %>
+    <%= asset_library_stylesheet_tags(:stylesheets, :ie6) %>
   <![endif]-->
 
 Both helpers behave differently depending on whether
@@ -92,7 +92,10 @@ should be in <tt>config/asset_library.yml</tt>.
     cache: library
     base: stylesheets
     suffix: css
-    extra_suffixes: [ie6, ie7, ie8]
+    formats:
+      - ie6: [null, ie8, ie7, ie6]
+      - ie7: [null, ie8, ie7]
+      - ie8: [null, ie8]
     files:
       - reset
       - application
@@ -104,7 +107,9 @@ should be in <tt>config/asset_library.yml</tt>.
   #  cache: cache_file
   #  base: base_path_of_assets_in_web_root
   #  suffix: suffix ("css" or "js")
-  #  extra_suffixes: ["other_bundle_suffix_1", "other_bundle_suffix_2"]
+  #  formats:
+  #    format1: ["extra_suffix_1", "extra_suffix_2"]
+  #    format2: [null, "extra_suffix3"]
   #  optional_suffix: optional_suffix
   #  files:
   #    - file1_relative_to_base
@@ -128,14 +133,14 @@ should be <tt>stylesheets</tt>.
 <tt>suffix</tt> is either "js" or "css", depending on whether you are including
 JavaScript or CSS files.
 
-<tt>extra_suffixes</tt> allows construction of parallel modules. If you specify
-<tt>extra_suffixes</tt> as ['ie6', 'ie7'], <tt>files</tt> as <tt>file1</tt> and
-<tt>file2</tt>, <tt>module_name</tt> as <tt>module</tt>, and <tt>suffix</tt> as
-<tt>css</tt>, then three modules will be created (ignoring nonexistent files):
-
-* <tt>module.css</tt>, the concatenation of <tt>file1.css</tt> and <tt>file2.css</tt>
-* <tt>module.ie6.css</tt>, the concatenation of <tt>file1.ie6.css</tt> and <tt>file2.ie6.css</tt>
-* <tt>module.ie7.css</tt>, the concatenation of <tt>file1.ie7.css</tt> and <tt>file2.ie7.css</tt>
+<tt>formats</tt> allows construction of parallel modules. By default, for a
+module named <tt>styles</tt> will use <tt>*.css</tt> (where <tt>*</tt> is
+specified by the <tt>files</tt> option) to generate <tt>styles.css</tt>; but
+filenames of the format <tt>*.suffix.css</tt> will be ignored in that search.
+If a <tt>format</tt> called <tt>format1</tt> is specified as
+<tt>[suffix1, suffix2]</tt>, then <tt>*.suffix1.css</tt> and
+<tt>*.suffix2.css</tt> will be included, but not <tt>*.css</tt>. (To specify
+<tt>*.css</tt>, put <tt>null</tt> in the format list.)
 
 <tt>optional_suffix</tt> will cause asset_library to check for the existence of
 files with <tt>optional_suffix</tt> suffixes, falling back to files without
@@ -152,9 +157,8 @@ directory, and they will be included instead, for optimal download speed.
 <tt>files</tt> is a list of files, relative to <tt>base</tt>. File globbing is
 allowed; <tt>**</tt> expands to "any nesting of directories". Files which do
 not exist will be excluded; globbing will include/exclude files with
-<tt>extra_suffixes</tt> as appropriate; and files without
-<tt>optional_suffix</tt> will not be output alongside files with the same name
-endowed with the suffix.
+<tt>formats</tt> as appropriate; and files without <tt>optional_suffix</tt>
+will not be output alongside files with the same name endowed with the suffix.
 
 == Copyright
 

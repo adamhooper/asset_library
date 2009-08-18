@@ -58,17 +58,32 @@ describe(AssetLibrary::AssetModule) do
 
     it('should pick files with :extra_suffix') do
       stub_fs([ '/c/file1.e.css' ])
-      m(css_config(:files => ['file1'])).assets('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.css' ]
+      m(css_config(:files => ['file1'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.css' ]
     end
 
     it('should ignore non-suffixed files when :extra_suffix is set') do
       stub_fs([ '/c/file1.css' ])
-      m(css_config(:files => ['file1'])).assets('e').collect{|a| a.absolute_path}.should == []
+      m(css_config(:files => ['file1'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == []
+    end
+
+    it('should use extra suffixes with format') do
+      stub_fs([ '/c/file1.e1.css', '/c/file1.e2.css' ])
+      m(css_config(:files => ['file1'], :formats => { :f1 => [ 'e1', 'e2' ] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == [ '/c/file1.e1.css', '/c/file1.e2.css' ]
+    end
+
+    it('should ignore extra suffixes unspecified in format') do
+      stub_fs([ '/c/file1.e1.css', '/c/file1.e2.css' ])
+      m(css_config(:files => ['file1'], :formats => { :f1 => [ 'e1' ] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == [ '/c/file1.e1.css' ]
+    end
+
+    it('should allow nil suffixes in format') do
+      stub_fs([ '/c/file1.css', '/c/file1.e1.css' ])
+      m(css_config(:files => ['file1'], :formats => { :f1 => [nil, 'e1'] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == ['/c/file1.css', '/c/file1.e1.css' ]
     end
 
     it('should combine :extra_suffix with :optional_suffix') do
       stub_fs([ '/c/file1.e.css', '/c/file1.e.o.css' ])
-      m(css_config(:files => ['file1'], :optional_suffix => 'o')).assets('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.o.css' ]
+      m(css_config(:files => ['file1'], :optional_suffix => 'o')).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.o.css' ]
     end
 
     it('should ignore too many dots when globbing') do
@@ -78,7 +93,7 @@ describe(AssetLibrary::AssetModule) do
 
     it('should pick files with :extra_suffix when globbing') do
       stub_fs([ '/c/file1.e.css', '/c/file2.css' ])
-      m(css_config(:files => ['file*'])).assets('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.css' ]
+      m(css_config(:files => ['file*'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.css' ]
     end
 
     it('should pick files with :optional_suffix when globbing') do
@@ -88,7 +103,7 @@ describe(AssetLibrary::AssetModule) do
 
     it('should pick files with both :extra_suffix and :optional_suffix when globbing') do
       stub_fs([ '/c/file.css', '/c/file.e.css', '/c/file.e.o.css' ])
-      m(css_config(:optional_suffix => 'o', :files => ['file*'])).assets('e').collect{|a| a.absolute_path}.should == [ '/c/file.e.o.css' ]
+      m(css_config(:optional_suffix => 'o', :files => ['file*'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file.e.o.css' ]
     end
   end
 
@@ -109,8 +124,8 @@ describe(AssetLibrary::AssetModule) do
       m(css_config).cache_asset.absolute_path.should == '/c/cache.css'
     end
 
-    it('should use :extra_suffix if set') do
-      m(css_config).cache_asset('e').absolute_path.should == '/c/cache.e.css'
+    it('should use :format if set') do
+      m(css_config).cache_asset(:e).absolute_path.should == '/c/cache.e.css'
     end
   end
 
@@ -129,25 +144,25 @@ describe(AssetLibrary::AssetModule) do
       f.read.should == '/c/file1.css/c/file2.css'
     end
 
-    it('should use :extra_suffix to determine CSS output file') do
+    it('should use :format to determine CSS output file') do
       File.should_receive(:open).with('/c/cache.e.css', 'w')
-      m(css_config).write_cache('e')
+      m(css_config).write_cache(:e)
     end
   end
 
   describe('#write_all_caches') do
-    it('should write cache.css (no :extra_suffix)') do
+    it('should write cache.css (no :format)') do
       File.should_receive(:open).with('/c/cache.css', 'w')
       m(css_config).write_all_caches
     end
 
-    it('should write no-extra_suffix and all extra_suffix files') do
-      suffixes = [ 'e1', 'e2' ]
+    it('should write no-format and all format files') do
+      formats = { :e1 => [], :e2 => [] }
       File.should_receive(:open).with('/c/cache.css', 'w')
-      suffixes.each do |suffix|
-        File.should_receive(:open).with("/c/cache.#{suffix}.css", 'w')
+      formats.keys.each do |format|
+        File.should_receive(:open).with("/c/cache.#{format}.css", 'w')
       end
-      m(css_config(:extra_suffixes => suffixes)).write_all_caches
+      m(css_config(:formats => formats)).write_all_caches
     end
   end
 

@@ -12,7 +12,19 @@ class AssetLibrary
     #
     # Arguments:
     #   extra_suffix: if set, finds files with the given extra suffix
-    def assets(extra_suffix = nil)
+    def assets(format = nil)
+      if format
+        assets_with_format(format)
+      else
+        assets_with_extra_suffix(nil)
+      end
+    end
+
+    # Returns an Array of Assets to include.
+    #
+    # Arguments:
+    #   extra_suffix: if set, finds files with the given extra suffix
+    def assets_with_extra_suffix(extra_suffix)
       return nil unless config
 
       ret = []
@@ -23,10 +35,23 @@ class AssetLibrary
       ret
     end
 
-    def contents(extra_suffix = nil)
+    # Returns an Array of Assets to include.
+    #
+    # Calls assets_with_extra_suffix for each suffix in the given format
+    #
+    # Arguments:
+    #   format: format specified in the config
+    def assets_with_format(format)
+      return nil unless config
+
+      extra_suffixes = config[:formats][format.to_sym]
+      extra_suffixes.inject([]) { |r, s| r.concat(assets_with_extra_suffix(s)) }
+    end
+
+    def contents(format = nil)
       s = StringIO.new
 
-      assets(extra_suffix).each do |asset|
+      assets(format).each do |asset|
         File.open(asset.absolute_path, 'r') do |infile|
           s.write(infile.read)
         end
@@ -37,21 +62,21 @@ class AssetLibrary
     end
 
     # Returns an Asset representing the cache file
-    def cache_asset(extra_suffix = nil)
-      extra = extra_suffix ? ".#{extra_suffix}" : ''
+    def cache_asset(format = nil)
+      extra = format ? ".#{format}" : ''
       Asset.new(File.join(AssetLibrary.root, config[:base], "#{config[:cache]}#{extra}.#{config[:suffix]}"))
     end
 
-    def write_cache(extra_suffix = nil)
-      File.open(cache_asset(extra_suffix).absolute_path, 'w') do |outfile|
-        outfile.write(contents(extra_suffix).read)
+    def write_cache(format = nil)
+      File.open(cache_asset(format).absolute_path, 'w') do |outfile|
+        outfile.write(contents(format).read)
       end
     end
 
     def write_all_caches
-      cache_suffixes = [ nil ] + (config[:extra_suffixes] || [])
-      cache_suffixes.each do |extra_suffix|
-        write_cache(extra_suffix)
+      write_cache
+      (config[:formats] || {}).keys.each do |format|
+        write_cache(format)
       end
     end
 
@@ -87,9 +112,9 @@ class AssetLibrary
     def path_contains_extra_dot?(path, requested_file, extra_suffix)
       allowed_suffixes = []
 
-      allowed_suffixes << "\\.#{Regexp.quote(extra_suffix)}" if extra_suffix
-      allowed_suffixes << "(\\.#{Regexp.quote(config[:optional_suffix])})?" if config[:optional_suffix]
-      allowed_suffixes << "\\.#{Regexp.quote(config[:suffix])}" if config[:suffix]
+      allowed_suffixes << "\\.#{Regexp.quote(extra_suffix.to_s)}" if extra_suffix
+      allowed_suffixes << "(\\.#{Regexp.quote(config[:optional_suffix].to_s)})?" if config[:optional_suffix]
+      allowed_suffixes << "\\.#{Regexp.quote(config[:suffix].to_s)}" if config[:suffix]
 
       basename = File.basename(path)
       requested_basename = File.basename(requested_file)

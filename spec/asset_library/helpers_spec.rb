@@ -75,11 +75,11 @@ describe(AssetLibrary::Helpers) do
         h.asset_library_stylesheet_tags(:m).should == "<style type=\"text/css\">\n@import \"\/f.css?123\";\n</style>"
       end
 
-      it('should append extra_suffix to the cache filename') do
+      it('should use formats to find cache filename') do
         m = mock
-        m.should_receive(:assets).with('e').and_return([a('f.e.css')])
+        m.should_receive(:assets).with(:e).and_return([a('f.e.css')])
         AssetLibrary.stub!(:asset_module).and_return(m)
-        h.asset_library_stylesheet_tags(:m, 'e').should == "<style type=\"text/css\">\n@import \"f.e.css?123\";\n</style>"
+        h.asset_library_stylesheet_tags(:m, :e).should == "<style type=\"text/css\">\n@import \"f.e.css?123\";\n</style>"
       end
 
       it('should output a single <script> tag with 30 @import') do
@@ -106,11 +106,11 @@ describe(AssetLibrary::Helpers) do
         h.asset_library_stylesheet_tags(:m).should == '<link rel="stylesheet" type="text/css" href="/cache.css?123" />'
       end
 
-      it('should append extra_suffix to the cache filename') do
+      it('should use format for the cache filename') do
         m = mock
-        m.should_receive(:cache_asset).with('e').and_return(a('/cache.e.css'))
+        m.should_receive(:cache_asset).with(:e).and_return(a('/cache.e.css'))
         AssetLibrary.stub!(:asset_module).and_return(m)
-        h.asset_library_stylesheet_tags(:m, 'e').should == '<link rel="stylesheet" type="text/css" href="/cache.e.css?123" />'
+        h.asset_library_stylesheet_tags(:m, :e).should == '<link rel="stylesheet" type="text/css" href="/cache.e.css?123" />'
       end
     end
   end
