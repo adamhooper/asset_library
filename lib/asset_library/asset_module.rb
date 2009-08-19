@@ -80,52 +80,5 @@ class AssetLibrary
         write_cache(format)
       end
     end
-
-    private
-
-    def assets_for_pattern(pattern, extra_suffix)
-      ret = []
-
-      suffix = config[:suffix]
-      suffix = "#{extra_suffix}.#{suffix}" if extra_suffix
-
-      requested_path = File.join(AssetLibrary.root, config[:base], "#{pattern}.#{suffix}")
-
-      Dir.glob(requested_path).sort.each do |found_file|
-        found_file = maybe_add_optional_suffix_to_path(found_file)
-        next if path_contains_extra_dot?(found_file, pattern, extra_suffix)
-        ret << AssetLibrary::Asset.new(found_file)
-      end
-
-      ret
-    end
-
-    def maybe_add_optional_suffix_to_path(path)
-      if config[:optional_suffix]
-        basename = path[0..-(config[:suffix].length + 2)]
-        path_with_suffix = "#{basename}.#{config[:optional_suffix]}.#{config[:suffix]}"
-        File.exist?(path_with_suffix) ? path_with_suffix : path
-      else
-        path
-      end
-    end
-
-    def path_contains_extra_dot?(path, requested_file, extra_suffix)
-      allowed_suffixes = []
-
-      allowed_suffixes << "\\.#{Regexp.quote(extra_suffix.to_s)}" if extra_suffix
-      allowed_suffixes << "(\\.#{Regexp.quote(config[:optional_suffix].to_s)})?" if config[:optional_suffix]
-      allowed_suffixes << "\\.#{Regexp.quote(config[:suffix].to_s)}" if config[:suffix]
-
-      basename = File.basename(path)
-      requested_basename = File.basename(requested_file)
-
-      n_dots = requested_basename.count('.')
-      basename_regex = (['[^\.]+'] * (n_dots + 1)).join('\.')
-
-      regex =  /^#{basename_regex}#{allowed_suffixes.join}$/
-
-      !(basename =~ regex)
-    end
   end
 end
