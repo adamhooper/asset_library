@@ -27,12 +27,13 @@ class AssetLibrary
     def assets_with_extra_suffix(extra_suffix)
       return nil unless config
 
-      ret = []
-      config[:files].each do |requested_file|
-        ret.concat(assets_for_pattern(requested_file, extra_suffix))
-      end
-      ret.uniq!
-      ret
+      GlobFu.find(
+        config[:files],
+        :suffix => config[:suffix],
+        :extra_suffix => extra_suffix,
+        :root => File.join(*([AssetLibrary.root, config[:base]].compact)),
+        :optional_suffix => config[:optional_suffix]
+      ).collect { |f| Asset.new(f) }
     end
 
     # Returns an Array of Assets to include.

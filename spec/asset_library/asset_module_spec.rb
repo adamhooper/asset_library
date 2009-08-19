@@ -1,64 +1,67 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
 require 'set'
-require 'rglob'
 
 describe(AssetLibrary::AssetModule) do
   before(:each) do
-    AssetLibrary.stub!(:root).and_return('/')
+    AssetLibrary.stub!(:root).and_return(prefix)
+  end
+
+  after(:each) do
+    wipe_fs
   end
 
   describe('#assets') do
     it('should include file1 and file2') do
       files = [ '/c/file1.css', '/c/file2.css' ]
       stub_fs(files)
-      m(css_config(:files => ['file1', 'file2'])).assets.collect{|a| a.absolute_path}.should == files
+      m(css_config(:files => ['file1', 'file2'])).assets.collect{|a| a.absolute_path}.should == ["#{prefix}/c/file1.css", "#{prefix}/c/file2.css"]
     end
 
     it('should not include file2 if that does not exist') do
       files = [ '/c/file1.css' ]
       stub_fs(files)
-      m(css_config(:files => ['file1', 'file2'])).assets.collect{|a| a.absolute_path}.should == files
+      m(css_config(:files => ['file1', 'file2'])).assets.collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.css" ]
     end
 
     it('should not include other files') do
       files = [ '/c/file1.css', '/c/file2.css' ]
       stub_fs(files)
-      m(css_config(:files => ['file1'])).assets.collect{|a| a.absolute_path}.should == [ files.first ]
+      m(css_config(:files => ['file1'])).assets.collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.css" ]
     end
 
     it('should glob filenames') do
       files = [ '/c/file1.css', '/c/file2.css', '/c/other_file.css' ]
       stub_fs(files)
-      m(css_config(:files => ['file*'])).assets.collect{|a| a.absolute_path}.should == files[0..1]
+      m(css_config(:files => ['file*'])).assets.collect{|a| a.absolute_path}.should == ["#{prefix}/c/file1.css", "#{prefix}/c/file2.css"]
     end
 
     it('should glob directories') do
       files = [ '/c/file1.css', '/c/a/file2.css', '/c/b/a/file3.css' ]
       stub_fs(files)
-      m(css_config(:files => ['**/file*'])).assets.collect{|a| a.absolute_path}.should == files[1..2]
+      m(css_config(:files => ['**/file*'])).assets.collect{|a| a.absolute_path}.should == ["#{prefix}/c/a/file2.css", "#{prefix}/c/b/a/file3.css", "#{prefix}/c/file1.css"]
     end
 
     it('should use :optional_suffix when appropriate') do
-      files = [ '/c/file1.css', '/c/file1.o.css' ]
+      files = [ '/c/file1.css', '/c/file1.css.o' ]
       stub_fs(files)
-      m(css_config(:optional_suffix => 'o', :files => ['file1'])).assets.collect{|a| a.absolute_path}.should == files[1..1]
+      m(css_config(:optional_suffix => 'o', :files => ['file1'])).assets.collect{|a| a.absolute_path}.should == ["#{prefix}/c/file1.css.o"]
     end
 
-    it('should not show :optional_suffix file if original is absent') do
-      files = [ '/c/file1.o.css' ]
+    it('should show :optional_suffix file even if original is absent') do
+      files = [ '/c/file1.css.o' ]
       stub_fs(files)
-      m(css_config(:optional_suffix => 'o', :files => ['file1'])).assets.collect{|a| a.absolute_path}.should == []
+      m(css_config(:optional_suffix => 'o', :files => ['file1'])).assets.collect{|a| a.absolute_path}.should == ["#{prefix}/c/file1.css.o"]
     end
 
     it('should ignore :optional_suffix when suffixed file is not present') do
       stub_fs([ '/c/file1.css' ])
-      m(css_config(:optional_suffix => 'o', :files => ['file1'])).assets.collect{|a| a.absolute_path}.should == [ '/c/file1.css' ]
+      m(css_config(:optional_suffix => 'o', :files => ['file1'])).assets.collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.css" ]
     end
 
     it('should pick files with :extra_suffix') do
       stub_fs([ '/c/file1.e.css' ])
-      m(css_config(:files => ['file1'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.css' ]
+      m(css_config(:files => ['file1'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.e.css" ]
     end
 
     it('should ignore non-suffixed files when :extra_suffix is set') do
@@ -68,22 +71,22 @@ describe(AssetLibrary::AssetModule) do
 
     it('should use extra suffixes with format') do
       stub_fs([ '/c/file1.e1.css', '/c/file1.e2.css' ])
-      m(css_config(:files => ['file1'], :formats => { :f1 => [ 'e1', 'e2' ] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == [ '/c/file1.e1.css', '/c/file1.e2.css' ]
+      m(css_config(:files => ['file1'], :formats => { :f1 => [ 'e1', 'e2' ] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.e1.css", "#{prefix}/c/file1.e2.css" ]
     end
 
     it('should ignore extra suffixes unspecified in format') do
       stub_fs([ '/c/file1.e1.css', '/c/file1.e2.css' ])
-      m(css_config(:files => ['file1'], :formats => { :f1 => [ 'e1' ] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == [ '/c/file1.e1.css' ]
+      m(css_config(:files => ['file1'], :formats => { :f1 => [ 'e1' ] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.e1.css" ]
     end
 
     it('should allow nil suffixes in format') do
       stub_fs([ '/c/file1.css', '/c/file1.e1.css' ])
-      m(css_config(:files => ['file1'], :formats => { :f1 => [nil, 'e1'] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == ['/c/file1.css', '/c/file1.e1.css' ]
+      m(css_config(:files => ['file1'], :formats => { :f1 => [nil, 'e1'] })).assets_with_format(:f1).collect{|a| a.absolute_path}.should == ["#{prefix}/c/file1.css", "#{prefix}/c/file1.e1.css" ]
     end
 
     it('should combine :extra_suffix with :optional_suffix') do
-      stub_fs([ '/c/file1.e.css', '/c/file1.e.o.css' ])
-      m(css_config(:files => ['file1'], :optional_suffix => 'o')).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.o.css' ]
+      stub_fs([ '/c/file1.e.css', '/c/file1.e.css.o' ])
+      m(css_config(:files => ['file1'], :optional_suffix => 'o')).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.e.css.o" ]
     end
 
     it('should ignore too many dots when globbing') do
@@ -93,17 +96,17 @@ describe(AssetLibrary::AssetModule) do
 
     it('should pick files with :extra_suffix when globbing') do
       stub_fs([ '/c/file1.e.css', '/c/file2.css' ])
-      m(css_config(:files => ['file*'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file1.e.css' ]
+      m(css_config(:files => ['file*'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file1.e.css" ]
     end
 
     it('should pick files with :optional_suffix when globbing') do
-      stub_fs([ '/c/file.css', '/c/file.o.css' ])
-      m(css_config(:optional_suffix => 'o', :files => ['file*'])).assets.collect{|a| a.absolute_path}.should == [ '/c/file.o.css' ]
+      stub_fs([ '/c/file.css', '/c/file.css.o' ])
+      m(css_config(:optional_suffix => 'o', :files => ['file*'])).assets.collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file.css.o" ]
     end
 
     it('should pick files with both :extra_suffix and :optional_suffix when globbing') do
-      stub_fs([ '/c/file.css', '/c/file.e.css', '/c/file.e.o.css' ])
-      m(css_config(:optional_suffix => 'o', :files => ['file*'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ '/c/file.e.o.css' ]
+      stub_fs([ '/c/file.css', '/c/file.e.css', '/c/file.e.css.o' ])
+      m(css_config(:optional_suffix => 'o', :files => ['file*'])).assets_with_extra_suffix('e').collect{|a| a.absolute_path}.should == [ "#{prefix}/c/file.e.css.o" ]
     end
   end
 
@@ -115,52 +118,49 @@ describe(AssetLibrary::AssetModule) do
 
     it('should concatenate individual file contents') do
       stub_fs([ '/c/file1.css', '/c/file2.css' ])
-      m(css_config(:files => ['file*'])).contents.read.should == '/c/file1.css/c/file2.css'
+      m(css_config(:files => ['file*'])).contents.read.should == "/c/file1.css\n/c/file2.css\n"
     end
   end
 
   describe('#cache_asset') do
     it('should use options[:cache]') do
-      m(css_config).cache_asset.absolute_path.should == '/c/cache.css'
+      m(css_config).cache_asset.absolute_path.should == "#{prefix}/c/cache.css"
     end
 
     it('should use :format if set') do
-      m(css_config).cache_asset(:e).absolute_path.should == '/c/cache.e.css'
+      m(css_config).cache_asset(:e).absolute_path.should == "#{prefix}/c/cache.e.css"
     end
   end
 
   describe('#write_cache') do
     it('should write to cache.css') do
-      File.should_receive(:open).with('/c/cache.css', 'w')
+      File.should_receive(:open).with("#{prefix}/c/cache.css", 'w')
       m(css_config).write_cache
     end
 
     it('should write cache contents to cache') do
-      f = StringIO.new
-      File.stub!(:open).with('/c/cache.css', 'w').and_yield(f)
       stub_fs([ '/c/file1.css', '/c/file2.css' ])
       m(css_config(:files => ['file*'])).write_cache
-      f.rewind
-      f.read.should == '/c/file1.css/c/file2.css'
+      File.open("#{prefix}/c/cache.css") { |f| f.read.should == "/c/file1.css\n/c/file2.css\n" }
     end
 
     it('should use :format to determine CSS output file') do
-      File.should_receive(:open).with('/c/cache.e.css', 'w')
+      File.should_receive(:open).with("#{prefix}/c/cache.e.css", 'w')
       m(css_config).write_cache(:e)
     end
   end
 
   describe('#write_all_caches') do
     it('should write cache.css (no :format)') do
-      File.should_receive(:open).with('/c/cache.css', 'w')
+      File.should_receive(:open).with("#{prefix}/c/cache.css", 'w')
       m(css_config).write_all_caches
     end
 
     it('should write no-format and all format files') do
       formats = { :e1 => [], :e2 => [] }
-      File.should_receive(:open).with('/c/cache.css', 'w')
+      File.should_receive(:open).with("#{prefix}/c/cache.css", 'w')
       formats.keys.each do |format|
-        File.should_receive(:open).with("/c/cache.#{format}.css", 'w')
+        File.should_receive(:open).with("#{prefix}/c/cache.#{format}.css", 'w')
       end
       m(css_config(:formats => formats)).write_all_caches
     end
@@ -190,19 +190,27 @@ describe(AssetLibrary::AssetModule) do
     }.merge(options)
   end
 
+  def prefix
+    @prefix ||= File.dirname(__FILE__) + '/deleteme'
+  end
+
   def stub_fs(filenames)
-    filenames = Set.new(filenames)
-    File.stub!(:exist?).and_return do |path|
-      filenames.include?(path)
-    end
+    wipe_fs
+    FileUtils.mkdir(prefix)
 
-    filenames.each do |path|
-      File.stub!(:open).with(path, 'r').and_yield(StringIO.new(path))
+    filenames.each do |file|
+      path = File.join(prefix, file)
+      dir = File.dirname(path)
+      unless File.exist?(dir)
+        FileUtils.mkdir_p(dir)
+      end
+      File.open(path, 'w') { |f| f.write("#{file}\n") }
     end
+  end
 
-    Dir.stub!(:glob).and_return do |path|
-      glob = RGlob::Glob.new(path)
-      filenames.select { |f| glob.match(f) }
+  def wipe_fs
+    if File.exist?(prefix)
+      FileUtils.rm_r(prefix)
     end
   end
 end

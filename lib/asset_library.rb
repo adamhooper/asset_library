@@ -1,3 +1,10 @@
+begin
+  require 'glob_fu'
+rescue LoadError
+  require 'rubygems'
+  require 'glob_fu'
+end
+
 require File.dirname(__FILE__) + '/asset_library/asset_module'
 require File.dirname(__FILE__) + '/asset_library/util'
 
