@@ -50,3 +50,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<adamh-glob_fu>, [">= 0.0.4"])
   end
 end
+
