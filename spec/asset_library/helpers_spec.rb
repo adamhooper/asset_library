@@ -4,7 +4,19 @@ require File.dirname(__FILE__) + '/../../lib/asset_library/helpers'
 
 describe(AssetLibrary::Helpers) do
   before(:each) do
+    @h = nil
     AssetLibrary.stub!(:root).and_return('/')
+  end
+  before(:each) do
+    @old_cache = AssetLibrary.cache # Empty globals
+  end
+
+  after(:each) do
+    @h = nil
+  end
+  after(:each) do
+    AssetLibrary.cache = @old_cache
+    @old_cache = nil
   end
 
   describe('#asset_library_javascript_tags') do
@@ -36,17 +48,40 @@ describe(AssetLibrary::Helpers) do
         AssetLibrary.stub!(:asset_module).and_return(m)
         h.asset_library_javascript_tags(:m).should == '<script type="text/javascript" src="/f.js?123"></script>' + "\n" + '<script type="text/javascript" src="/f2.js?123"></script>'
       end
+
+      it('should use compute_asset_host if available') do
+        m = mock(:assets => [a('/f.js')])
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        h.should_receive(:compute_asset_host).with('/f.js?123').and_return('http://assets.test')
+        h.asset_library_javascript_tags(:m).should =~ %r{"http://assets.test/f.js\?123"}
+      end
+
+      it('should add request protocol to compute_asset_host output if applicable') do
+        m = mock(:assets => [a('/f.js')])
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        h.stub!(:compute_asset_host).and_return('assets.test')
+        h.instance_variable_set(:@controller, mock(:request => mock(:protocol => 'http://')))
+        h.asset_library_javascript_tags(:m).should =~ %r{"http://assets.test/f.js\?123"}
+      end
     end
 
     describe('when caching') do
       before(:each) do
-        AssetLibrary.stub!(:cache).and_return(true)
+        AssetLibrary.cache = true
       end
 
       it('should output a single <script> tag with the cache filename') do
         m = mock(:cache_asset => a('/cache.js'))
         AssetLibrary.stub!(:asset_module).and_return(m)
         h.asset_library_javascript_tags(:m).should == '<script type="text/javascript" src="/cache.js?123"></script>'
+      end
+
+      it('should use compute_asset_host if available') do
+        m = mock(:cache_asset => a('/cache.js'))
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        h.should_receive(:compute_asset_host).with('/cache.js?123').and_return('http://assets.test')
+        h.asset_library_javascript_tags(:m)
+        #h.asset_library_javascript_tags(:m).should =~ %r{"http://assets.test/cache.js\?123"}
       end
     end
   end
@@ -123,9 +158,10 @@ describe(AssetLibrary::Helpers) do
   end
 
   def h
+    return @h if @h
     c = Class.new do
       include AssetLibrary::Helpers
     end
-    o = c.new
+    @h = c.new
   end
 end

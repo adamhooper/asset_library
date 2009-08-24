@@ -33,7 +33,13 @@ class AssetLibrary
 
     def cache=(cache)
       @config = nil
+      @cache_vars = nil
       @cache = cache
+    end
+
+    def cache_vars
+      # We store cache_vars even if not caching--this is our "globals"
+      @cache_vars ||= {}
     end
 
     def config
