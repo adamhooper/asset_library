@@ -56,6 +56,20 @@ describe(AssetLibrary::Helpers) do
         h.asset_library_javascript_tags(:m).should =~ %r{"http://assets.test/f.js\?123"}
       end
 
+      it('should not use compute_asset_host if it returns nil') do
+        m = mock(:assets => [a('/f.js')])
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        h.should_receive(:compute_asset_host).and_return(nil)
+        h.asset_library_javascript_tags(:m).should =~ %r{"/f.js\?123"}
+      end
+
+      it('should not use compute_asset_host if it returns ""') do
+        m = mock(:assets => [a('/f.js')])
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        h.should_receive(:compute_asset_host).and_return("")
+        h.asset_library_javascript_tags(:m).should =~ %r{"/f.js\?123"}
+      end
+
       it('should add request protocol to compute_asset_host output if applicable') do
         m = mock(:assets => [a('/f.js')])
         AssetLibrary.stub!(:asset_module).and_return(m)

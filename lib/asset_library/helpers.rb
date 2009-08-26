@@ -43,6 +43,8 @@ class AssetLibrary
       def absolute_url(relative_url)
         host = helper.__send__(:compute_asset_host, relative_url) if helper.respond_to?(:compute_asset_host, true)
 
+        host = nil if host == '' # Rails sets '' by default
+
         if host && !(host =~ %r{^[-a-z]+://})
           controller = helper.instance_variable_get(:@controller)
           request = controller && controller.respond_to?(:request) && controller.request
