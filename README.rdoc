@@ -15,7 +15,7 @@ Next, add the gem into your Rails project's config/environment.rb:
 
 Finally, include the Rake tasks in your project:
 
-  echo "require 'asset_library/rake_tasks'" > lib/tasks/asset_library.rake
+  echo "begin; require 'asset_library/rake_tasks'; rescue LoadError; end" > lib/tasks/asset_library.rake
 
 == Usage
 
