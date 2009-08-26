@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{asset_library}
-  s.version = "0.3.2"
+  s.version = "0.3.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["adamh"]
-  s.date = %q{2009-08-24}
+  s.date = %q{2009-08-26}
   s.email = %q{adam@adamhooper.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -50,4 +50,3 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<adamh-glob_fu>, [">= 0.0.4"])
   end
 end
-
