@@ -10,11 +10,11 @@ class AssetLibrary
       end
     end
 
-    def asset_library_stylesheet_tags(module_key, format = nil)
+    def asset_library_stylesheet_tags(module_key, format = nil, html_options={})
       m = AssetLibrary.asset_module(module_key)
       if AssetLibrary.cache
         AssetLibrary.cache_vars[:stylesheet_tags] ||= {}
-        AssetLibrary.cache_vars[:stylesheet_tags][[module_key, format]] ||= asset_library_priv.style_tag(m.cache_asset(format))
+        AssetLibrary.cache_vars[:stylesheet_tags][[module_key, format]] ||= asset_library_priv.style_tag(m.cache_asset(format), html_options)
       else
         asset_library_priv.import_styles_tag(m.assets(format))
       end
@@ -62,8 +62,12 @@ class AssetLibrary
         "<script type=\"text/javascript\" src=\"#{url(asset)}\"></script>"
       end
 
-      def style_tag(asset)
-        "<link rel=\"stylesheet\" type=\"text/css\" href=\"#{url(asset)}\" />"
+      def style_tag(asset, html_options={})
+        t = "<link rel=\"stylesheet\" type=\"text/css\" href=\"#{url(asset)}\" "
+        html_options.each do |k, v|
+          t << "#{k}=\"#{v}\" "
+        end
+        t += "/>" 
       end
 
       def import_styles_tag(assets)
