@@ -16,7 +16,7 @@ class AssetLibrary
         AssetLibrary.cache_vars[:stylesheet_tags] ||= {}
         AssetLibrary.cache_vars[:stylesheet_tags][[module_key, format]] ||= asset_library_priv.style_tag(m.cache_asset(format), html_options)
       else
-        asset_library_priv.import_styles_tag(m.assets(format))
+        asset_library_priv.import_styles_tag(m.assets(format), html_options)
       end
     end
 
@@ -78,9 +78,13 @@ class AssetLibrary
         a.join("\n")
       end
 
-      def import_style_tag(assets)
+      def import_style_tag(assets, html_options={})
         imports = assets.collect{ |a| "@import \"#{url(a)}\";" }
-        "<style type=\"text/css\">\n#{imports.join("\n")}\n</style>"
+        t = "<style type=\"text/css\""
+        html_options.each do |k,v|
+          t << "#{k}=\"#{v}\" "
+        end
+        t += ">\n#{imports.join("\n")}\n</style>"
       end
     end
   end
