@@ -142,6 +142,13 @@ describe(AssetLibrary::Helpers) do
         AssetLibrary.stub!(:asset_module).and_return(m)
         h.asset_library_stylesheet_tags(:m).should =~ /\<style type="text\/css"\>(\n@import "\/f\d+.css\?123";){30}\n\<\/style\>\n<style type="text\/css"\>\n@import "\/f31.css\?123";\n\<\/style\>/
       end
+      
+      it('should output a final hash in the parameters as html attributes') do
+        m = mock(:assets => [a('/f.css')])
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        optional_hash = {:key1 => "val1", :key2 => "val2", :key3 => "val3"}
+        attributes_to_hash( h.asset_library_stylesheet_tags(:m, optional_hash), [:type] ).should == optional_hash
+      end
     end
 
     describe('when caching') do
@@ -160,6 +167,13 @@ describe(AssetLibrary::Helpers) do
         m.should_receive(:cache_asset).with(:e).and_return(a('/cache.e.css'))
         AssetLibrary.stub!(:asset_module).and_return(m)
         h.asset_library_stylesheet_tags(:m, :e).should == '<link rel="stylesheet" type="text/css" href="/cache.e.css?123" />'
+      end
+
+      it('should output a final hash in the parameters as html attributes') do
+        m = mock(:cache_asset => a('/cache.css'))
+        AssetLibrary.stub!(:asset_module).and_return(m)
+        optional_hash = {:key1 => "val1", :key2 => "val2", :key3 => "val3"}
+        attributes_to_hash( h.asset_library_stylesheet_tags(:m, optional_hash), [:type, :rel, :href] ).should == optional_hash
       end
     end
   end

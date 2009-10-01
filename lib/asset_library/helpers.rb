@@ -1,6 +1,7 @@
 class AssetLibrary
   module Helpers
     def asset_library_javascript_tags(module_key, format = nil)
+      
       m = AssetLibrary.asset_module(module_key)
       if AssetLibrary.cache
         AssetLibrary.cache_vars[:javascript_tags] ||= {}
@@ -10,7 +11,10 @@ class AssetLibrary
       end
     end
 
-    def asset_library_stylesheet_tags(module_key, format = nil, html_options = {})
+    def asset_library_stylesheet_tags(module_key, *args)
+      html_options = args.last.is_a?(Hash) ? args.pop : {}
+      format = args[0]
+      
       m = AssetLibrary.asset_module(module_key)
       if AssetLibrary.cache
         AssetLibrary.cache_vars[:stylesheet_tags] ||= {}
@@ -59,15 +63,11 @@ class AssetLibrary
       end
 
       def script_tag(asset)
-        "<script type=\"text/javascript\" src=\"#{url(asset)}\"></script>"
+        content_tag(:script, "", {:type => "text/javascript", :src => url(asset)})
       end
 
       def style_tag(asset, html_options = {})
-        t = "<link rel=\"stylesheet\" type=\"text/css\" href=\"#{url(asset)}\" "
-        html_options.each do |k, v|
-          t << "#{k}=\"#{v}\" "
-        end
-        t += "/>" 
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"#{url(asset)}\" #{attributes_from_hash(html_options)}/>"
       end
 
       def import_styles_tag(assets, html_options = {})
@@ -80,12 +80,17 @@ class AssetLibrary
 
       def import_style_tag(assets, html_options = {})
         imports = assets.collect{ |a| "@import \"#{url(a)}\";" }
-        t = "<style type=\"text/css\""
-        html_options.each do |k,v|
-          t << "#{k}=\"#{v}\" "
-        end
-        t += ">\n#{imports.join("\n")}\n</style>"
+        content_tag(:style, "\n#{imports.join("\n")}\n", html_options.merge(:type => "text/css"))
       end
+      
+      def content_tag(name, content, options = {})        
+        "<#{name} #{attributes_from_hash(options)}>#{content}</#{name}>"
+      end
+      
+      def attributes_from_hash(options = {})
+        options.to_a.collect{|k, v| "#{k}=\"#{v}\""}.join(" ")
+      end
+      
     end
   end
 end
