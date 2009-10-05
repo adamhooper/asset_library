@@ -7,11 +7,11 @@ code and your production environment is as fast as possible.
 
 First, install the gem:
 
-  sudo gem install adamh-asset_library --source http://gems.github.com
+  sudo gem install alegscogs-asset_library --source http://gems.github.com
 
 Next, add the gem into your Rails project's config/environment.rb:
 
-  config.gem 'adamh-asset_library', :lib => 'asset_library', :source => 'http://gems.github.com'
+  config.gem 'alegscogs-asset_library', :lib => 'asset_library', :source => 'http://gems.github.com'
 
 Finally, include the Rake tasks in your project:
 
