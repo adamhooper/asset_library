@@ -18,7 +18,7 @@ class AssetLibrary
       m = AssetLibrary.asset_module(module_key)
       if AssetLibrary.cache
         AssetLibrary.cache_vars[:stylesheet_tags] ||= {}
-        AssetLibrary.cache_vars[:stylesheet_tags][[module_key, format]] ||= asset_library_priv.style_tag(m.cache_asset(format), html_options)
+        AssetLibrary.cache_vars[:stylesheet_tags][[module_key, format, request.protocol, request.host_with_port]] ||= asset_library_priv.style_tag(m.cache_asset(format), html_options)
       else
         asset_library_priv.import_styles_tag(m.assets(format), html_options)
       end
