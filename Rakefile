@@ -4,7 +4,7 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "asset_library"
+    gem.name = "alegscogs-asset_library"
     gem.summary = %Q{Manage and bundle CSS and JavaScript files}
     gem.email = "alegscogs@gmail.com"
     gem.homepage = "http://github.com/alegscogs/asset_library"
@@ -43,7 +43,7 @@ Rake::RDocTask.new do |rdoc|
   end
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "asset_library #{version}"
+  rdoc.title = "alegscogs-asset_library #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
