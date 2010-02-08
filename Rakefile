@@ -4,10 +4,10 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "alegscogs-asset_library"
+    gem.name = "asset_library"
     gem.summary = %Q{Manage and bundle CSS and JavaScript files}
-    gem.email = "alegscogs@gmail.com"
-    gem.homepage = "http://github.com/alegscogs/asset_library"
+    gem.email = "adam@adamhooper.com"
+    gem.homepage = "http://github.com/adamh/asset_library"
     gem.add_dependency 'adamh-glob_fu', '>= 0.0.4'
     gem.authors = ["adamh", "alegscogs"]
     gem.files = FileList['lib/**/*.rb', 'rails/**/*.rb'].to_a
@@ -43,7 +43,7 @@ Rake::RDocTask.new do |rdoc|
   end
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "alegscogs-asset_library #{version}"
+  rdoc.title = "asset_library #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

@@ -95,7 +95,7 @@ describe(AssetLibrary::Helpers) do
         AssetLibrary.stub!(:asset_module).and_return(m)
         h.should_receive(:compute_asset_host).with('/cache.js?123').and_return('http://assets.test')
         h.asset_library_javascript_tags(:m)
-        #h.asset_library_javascript_tags(:m).should =~ %r{"http://assets.test/cache.js\?123"}
+        h.asset_library_javascript_tags(:m).should =~ %r{"http://assets.test/cache.js\?123"}
       end
     end
   end
@@ -173,7 +173,7 @@ describe(AssetLibrary::Helpers) do
         m = mock(:cache_asset => a('/cache.css'))
         AssetLibrary.stub!(:asset_module).and_return(m)
         optional_hash = {:key1 => "val1", :key2 => "val2", :key3 => "val3"}
-        attributes_to_hash( h.asset_library_stylesheet_tags(:m, optional_hash), [:type, :rel, :href] ).should == optional_hash
+        attributes_to_hash(h.asset_library_stylesheet_tags(:m, optional_hash), [:type, :rel, :href]).should == optional_hash
       end
     end
   end
@@ -191,5 +191,20 @@ describe(AssetLibrary::Helpers) do
       include AssetLibrary::Helpers
     end
     @h = c.new
+    @h.stub!(:request).and_return(mock(:protocol => 'http://', :host_with_port => 'example.com'))
+    @h
+  end
+
+  def attributes_to_hash(string, without = [])
+    hash_from_tag_attributes = {}
+    
+    string.scan(/\s([^\s=]+="[^"]*)"/).each do |attr| 
+      a = attr[0].split("=\"")
+      hash_from_tag_attributes.merge!( a[0].to_sym => a[1] ) 
+    end
+    
+    without.each{|k| hash_from_tag_attributes.delete k} 
+    
+    hash_from_tag_attributes
   end
 end
