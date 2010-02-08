@@ -12,6 +12,7 @@ begin
     gem.authors = ["adamh", "alegscogs"]
     gem.files = FileList['lib/**/*.rb', 'rails/**/*.rb'].to_a
   end
+  Jeweler::GemcutterTasks.new
 
 rescue LoadError
   puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
