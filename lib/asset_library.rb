@@ -5,10 +5,13 @@ rescue LoadError
   require 'glob_fu'
 end
 
+require File.dirname(__FILE__) + '/asset_library/compiler'
 require File.dirname(__FILE__) + '/asset_library/asset_module'
 require File.dirname(__FILE__) + '/asset_library/util'
 
 class AssetLibrary
+  ConfigurationError = Class.new(RuntimeError)
+
   class << self
     def config_path
       @config_path
