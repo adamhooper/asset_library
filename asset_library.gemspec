@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["adamh", "alegscogs"]
-  s.date = %q{2010-02-08}
+  s.date = %q{2010-02-09}
   s.email = %q{adam@adamhooper.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -30,10 +30,10 @@ Gem::Specification.new do |s|
   s.summary = %q{Manage and bundle CSS and JavaScript files}
   s.test_files = [
     "spec/asset_library_spec.rb",
-     "spec/spec_helper.rb",
-     "spec/asset_library/helpers_spec.rb",
+     "spec/asset_library/asset_module_spec.rb",
      "spec/asset_library/asset_spec.rb",
-     "spec/asset_library/asset_module_spec.rb"
+     "spec/asset_library/helpers_spec.rb",
+     "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then
