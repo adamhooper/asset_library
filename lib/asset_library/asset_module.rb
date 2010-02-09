@@ -8,6 +8,11 @@ class AssetLibrary
       @config = config
     end
 
+    # Returns the type of compiler to use for this asset module.
+    def compiler_type
+      (config[:compiler] || :default).to_sym
+    end
+
     # Returns an Array of Assets to include.
     #
     # Arguments:

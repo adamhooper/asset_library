@@ -35,8 +35,7 @@ class AssetLibrary
     end
 
     def cache=(cache)
-      @config = nil
-      @cache_vars = nil
+      reset!
       @cache = cache
     end
 
@@ -78,9 +77,22 @@ class AssetLibrary
 
     def write_all_caches
       config.keys.each do |key|
+        next if key == :asset_library
         m = asset_module(key)
-        m.write_all_caches
+        c = compiler(m)
+        c.add_asset_module(m)
       end
+
+      compilers.values.each do |compiler|
+        compiler.write_all_caches
+      end
+    end
+
+    def reset!
+      @config = nil
+      @cache_vars = nil
+      @compilers = nil
+      Compiler.reset!
     end
   end
 end

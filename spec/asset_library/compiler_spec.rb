@@ -18,10 +18,6 @@ describe(AssetLibrary::Compiler) do
   end
 
   describe('.register') do
-    after(:each) do
-      Compiler.reset!
-    end
-
     TestCompiler = Class.new(Compiler::Base)
 
     it('should register a custom compiler type') do

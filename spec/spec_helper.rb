@@ -40,3 +40,7 @@ module TemporaryDirectory
     TMP
   end
 end
+
+Spec::Runner.configure do |config|
+  config.before{AssetLibrary.reset!}
+end

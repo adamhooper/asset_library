@@ -107,21 +107,4 @@ describe(AssetLibrary) do
       AssetLibrary.config
     end
   end
-
-  describe('#write_all_caches') do
-    it('should call write_all_caches on all asset_modules') do
-      mock1 = mock
-      mock2 = mock
-
-      mock1.should_receive(:write_all_caches)
-      mock2.should_receive(:write_all_caches)
-
-      AssetLibrary.stub!(:asset_module).with(:mock1).and_return(mock1)
-      AssetLibrary.stub!(:asset_module).with(:mock2).and_return(mock2)
-
-      AssetLibrary.stub!(:config).and_return({ :mock1 => {}, :mock2 => {} })
-
-      AssetLibrary.write_all_caches
-    end
-  end
 end
