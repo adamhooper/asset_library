@@ -110,18 +110,6 @@ describe(AssetLibrary::AssetModule) do
     end
   end
 
-  describe('#contents') do
-    it('should return an IO object') do
-      stub_fs([ '/c/file1.css', '/c/file2.css' ])
-      m(css_config(:files => ['file*'])).contents.should(respond_to(:read))
-    end
-
-    it('should concatenate individual file contents') do
-      stub_fs([ '/c/file1.css', '/c/file2.css' ])
-      m(css_config(:files => ['file*'])).contents.read.should == "/c/file1.css\n/c/file2.css\n"
-    end
-  end
-
   describe('#cache_asset') do
     it('should use options[:cache]') do
       m(css_config).cache_asset.absolute_path.should == "#{prefix}/c/cache.css"
@@ -129,40 +117,6 @@ describe(AssetLibrary::AssetModule) do
 
     it('should use :format if set') do
       m(css_config).cache_asset(:e).absolute_path.should == "#{prefix}/c/cache.e.css"
-    end
-  end
-
-  describe('#write_cache') do
-    it('should write to cache.css') do
-      File.should_receive(:open).with("#{prefix}/c/cache.css", 'w')
-      m(css_config).write_cache
-    end
-
-    it('should write cache contents to cache') do
-      stub_fs([ '/c/file1.css', '/c/file2.css' ])
-      m(css_config(:files => ['file*'])).write_cache
-      File.open("#{prefix}/c/cache.css") { |f| f.read.should == "/c/file1.css\n/c/file2.css\n" }
-    end
-
-    it('should use :format to determine CSS output file') do
-      File.should_receive(:open).with("#{prefix}/c/cache.e.css", 'w')
-      m(css_config).write_cache(:e)
-    end
-  end
-
-  describe('#write_all_caches') do
-    it('should write cache.css (no :format)') do
-      File.should_receive(:open).with("#{prefix}/c/cache.css", 'w')
-      m(css_config).write_all_caches
-    end
-
-    it('should write no-format and all format files') do
-      formats = { :e1 => [], :e2 => [] }
-      File.should_receive(:open).with("#{prefix}/c/cache.css", 'w')
-      formats.keys.each do |format|
-        File.should_receive(:open).with("#{prefix}/c/cache.#{format}.css", 'w')
-      end
-      m(css_config(:formats => formats)).write_all_caches
     end
   end
 
