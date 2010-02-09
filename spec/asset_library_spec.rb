@@ -21,10 +21,10 @@ describe(AssetLibrary) do
       AssetLibrary.config
     end
 
-    it('should return {} if config_path does not exist') do
+    it('should return a skeletal configuration if config_path does not exist') do
       AssetLibrary.config_path = '/config.yml'
       File.stub!(:exist?).with('/config.yml').and_return(false)
-      AssetLibrary.config.should == {}
+      AssetLibrary.config.should == config_skeleton
     end
 
     it('should cache config if cache is set') do
@@ -58,7 +58,11 @@ describe(AssetLibrary) do
         { 'a' => { 'b' =>  'c' } }
       )
 
-      AssetLibrary.config.should == { :a => { :b => 'c' } }
+      AssetLibrary.config.should == config_skeleton.merge(:a => {:b => 'c'})
+    end
+
+    def config_skeleton
+      {:asset_library => {:compilers => {}}}
     end
   end
 
@@ -75,6 +79,32 @@ describe(AssetLibrary) do
     it('should return an AssetModule when given a valid key') do
       @config[:foo] = {}
       AssetLibrary.asset_module(:foo).should(be_a(AssetLibrary::AssetModule))
+    end
+  end
+
+  describe('#compiler') do
+    include TemporaryDirectory
+
+    before(:each) do
+      configure_compilers
+    end
+
+    it('should return a Default compiler if no compiler type has been configured for the given asset module') do
+      asset_module = mock(:compiler_type => :default)
+      AssetLibrary.compiler(asset_module).should be_a(AssetLibrary::Compiler::Default)
+    end
+
+    it('should return a compiler of the configured type for the given asset module, if one is given') do
+      asset_module = mock(:compiler_type => :closure)
+      AssetLibrary.compiler(asset_module).should be_a(AssetLibrary::Compiler::Closure)
+    end
+
+    def configure_compilers
+      config = {:asset_library => {:compilers => {:closure => {:closure_path => 'closure.jar'}}}}
+      config_path = "#{tmp}/config.yml"
+      open(config_path, 'w'){|f| YAML.dump(config, f)}
+      AssetLibrary.config_path = config_path
+      AssetLibrary.config
     end
   end
 

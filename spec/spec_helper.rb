@@ -4,7 +4,7 @@ require 'spec'
 require File.dirname(__FILE__) + '/../lib/asset_library'
 
 module TemporaryDirectory
-  TMP = File.expand_path(File.dirname(__FILE__) + 'tmp')
+  TMP = File.expand_path(File.dirname(__FILE__) + '/tmp')
 
   def self.included(base)
     base.before do

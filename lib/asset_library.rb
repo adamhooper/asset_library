@@ -53,8 +53,14 @@ class AssetLibrary
       else
         {}
       end
+      ret[:asset_library] ||= {}
+      ret[:asset_library][:compilers] ||= {}
       @config = cache ? ret : nil
       ret
+    end
+
+    def compilers
+      @compilers ||= {}
     end
 
     def asset_module(key)
@@ -62,6 +68,12 @@ class AssetLibrary
       if module_config
         AssetModule.new(module_config)
       end
+    end
+
+    def compiler(asset_module)
+      type = asset_module.compiler_type
+      config = self.config[:asset_library][:compilers][:closure] || {}
+      compilers[type] ||= Compiler.create(type, config)
     end
 
     def write_all_caches
