@@ -1,10 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
 
-describe(AssetLibrary::Compiler::Base) do
+describe(AssetLibrary::Compiler::Default) do
   include TemporaryDirectory
 
   before do
-    @compiler = AssetLibrary::Compiler::Base.new(nil)
+    @compiler = AssetLibrary::Compiler::Default.new(nil)
   end
 
   it('should concatenate each set of input files to produce the respective output files') do
