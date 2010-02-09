@@ -41,6 +41,17 @@ module TemporaryDirectory
   end
 end
 
+module CompilerHelpers
+  def mock_asset_module(format, output_path, *input_paths)
+    output_asset = mock(:absolute_path => output_path)
+    input_assets = input_paths.map{|path| mock(:absolute_path => path)}
+    asset_module = mock
+    asset_module.stub!(:cache_asset).with(:format).and_return(output_asset)
+    asset_module.stub!(:assets).with(:format).and_return(input_assets)
+    asset_module
+  end
+end
+
 Spec::Runner.configure do |config|
   config.before{AssetLibrary.reset!}
 end
