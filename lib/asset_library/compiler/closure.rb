@@ -11,15 +11,14 @@ class AssetLibrary
         config[:java_flags] = normalize_java_flags(config[:java_flags])
       end
 
-      def write_all_caches(file_map)
+      def write_all_caches(format = nil)
         command = [config[:java_path]]
         command.concat(config[:java_flags])
         command << '-jar' << config[:closure_path]
-        # Sort so the order is predictable.
-        file_map.sort.each do |output_path, input_paths|
-          command << '--module' << "#{output_path}:#{input_paths.size}"
-          input_paths.each do |input_path|
-            command << '--js' << input_path
+        each_compilation(format) do |output, *inputs|
+          command << '--module' << "#{output}:#{inputs.size}"
+          inputs.each do |input|
+            command << '--js' << input
           end
         end
         system *command
