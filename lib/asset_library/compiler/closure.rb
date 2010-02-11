@@ -7,12 +7,12 @@ class AssetLibrary
         super
         config[:closure_path] or
           raise ConfigurationError, "Please set path of closure jar with compiler.closure_path configuration setting"
-        config[:java_path] ||= 'java'
+        config[:java] ||= 'java'
         config[:java_flags] = normalize_java_flags(config[:java_flags])
       end
 
       def write_all_caches(format = nil)
-        command = [config[:java_path]]
+        command = [config[:java]]
         command.concat(config[:java_flags])
         command << '-jar' << normalize_path(config[:closure_path])
         each_compilation(format) do |config, output, *inputs|

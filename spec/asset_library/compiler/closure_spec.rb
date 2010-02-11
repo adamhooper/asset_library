@@ -33,8 +33,8 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.write_all_caches(:format)
     end
 
-    it('should take the path to java from the :java_path configuration option') do
-      compiler = compiler(:java_path => '/PATH/TO/JAVA')
+    it('should take the java executable name from the :java configuration option') do
+      compiler = compiler(:java => '/PATH/TO/JAVA')
       compiler.should_receive(:system).with('/PATH/TO/JAVA', '-jar', '/PATH/TO/CLOSURE.jar')
       compiler.write_all_caches
     end
