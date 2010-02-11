@@ -72,7 +72,7 @@ class AssetLibrary
     def asset_module(key)
       module_config = config[key.to_sym]
       if module_config
-        AssetModule.new(module_config)
+        AssetModule.new(key, module_config)
       end
     end
 

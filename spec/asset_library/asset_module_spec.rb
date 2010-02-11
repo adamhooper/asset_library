@@ -123,7 +123,7 @@ describe(AssetLibrary::AssetModule) do
   private
 
   def m(config)
-    AssetLibrary::AssetModule.new(config)
+    AssetLibrary::AssetModule.new(:name, config)
   end
 
   def js_config(options = {})

@@ -4,9 +4,12 @@ class AssetLibrary
   class AssetModule
     attr_reader(:config)
 
-    def initialize(config)
+    def initialize(name, config)
+      @name = name.to_s
       @config = config
     end
+
+    attr_reader :name
 
     # Returns the type of compiler to use for this asset module.
     def compiler_type

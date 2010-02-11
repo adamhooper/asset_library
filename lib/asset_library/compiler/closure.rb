@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'tmpdir'
 
 class AssetLibrary
   module Compiler
@@ -15,14 +16,29 @@ class AssetLibrary
         command = [config[:java]]
         command.concat(config[:java_flags])
         command << '-jar' << normalize_path(config[:closure_path])
-        each_compilation(format) do |config, output, *inputs|
-          dependencies = normalize_dependencies(config[:dependencies]).join(',')
-          command << '--module' << "#{output}:#{inputs.size}:#{dependencies}"
+        # Closure can't seem to output to different directories.
+        # Output to a temporary location, and move it into place.
+        tmpdir = Dir.tmpdir
+        command << '--module_output_path_prefix' << "#{tmpdir}/"
+        moves = {}
+        each_compilation(format) do |asset_module, output, *inputs|
+          dependencies = normalize_dependencies(asset_module.config[:dependencies]).join(',')
+          command << '--module' << "#{asset_module.name}:#{inputs.size}:#{dependencies}"
           inputs.each do |input|
             command << '--js' << input
           end
+          moves["#{tmpdir}/#{asset_module.name}.js"] = output
         end
         system *command
+        move_files(moves)
+      end
+
+      # This is stubbed in unit tests, along with #system
+      def move_files(moves) # :nodoc:
+        moves.each do |src, dst|
+          FileUtils.mkdir_p File.dirname(dst)
+          File.rename(src, dst)
+        end
       end
 
       private
