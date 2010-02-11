@@ -75,9 +75,12 @@ class AssetLibrary
       compilers[type] ||= Compiler.create(type, config)
     end
 
+    def cache_keys
+      config.keys - [:asset_library]
+    end
+
     def write_all_caches
-      config.keys.each do |key|
-        next if key == :asset_library
+      cache_keys.each do |key|
         m = asset_module(key)
         c = compiler(m)
         c.add_asset_module(m)
@@ -85,6 +88,13 @@ class AssetLibrary
 
       compilers.values.each do |compiler|
         compiler.write_all_caches
+      end
+    end
+
+    def delete_all_caches
+      asset_modules = cache_keys.collect{|k| AssetLibrary.asset_module(k)}
+      asset_modules.each do |m|
+        FileUtils.rm_f(m.cache_asset.absolute_path)
       end
     end
 
