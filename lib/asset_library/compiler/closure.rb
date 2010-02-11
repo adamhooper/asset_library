@@ -9,13 +9,16 @@ class AssetLibrary
         config[:closure_path] or
           raise ConfigurationError, "Please set path of closure jar with compiler.closure_path configuration setting"
         config[:java] ||= 'java'
-        config[:java_flags] = normalize_java_flags(config[:java_flags])
+        config[:java_flags] = normalize_flags(config[:java_flags])
+        config[:closure_path] = normalize_path(config[:closure_path])
+        config[:closure_flags] = normalize_flags(config[:closure_flags])
       end
 
       def write_all_caches(format = nil)
         command = [config[:java]]
         command.concat(config[:java_flags])
-        command << '-jar' << normalize_path(config[:closure_path])
+        command << '-jar' << config[:closure_path]
+        command.concat(config[:closure_flags])
         # Closure can't seem to output to different directories.
         # Output to a temporary location, and move it into place.
         tmpdir = Dir.tmpdir
@@ -47,7 +50,7 @@ class AssetLibrary
         (Pathname(AssetLibrary.app_root) + value).to_s
       end
 
-      def normalize_java_flags(value)
+      def normalize_flags(value)
         case value
         when String
           Shellwords.shellwords(value)

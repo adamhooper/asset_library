@@ -59,9 +59,15 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.write_all_caches
     end
 
-    it('should pass any extra java_flags configured to java') do
+    it('should pass any configured java_flags to java') do
       compiler = compiler(:java_flags => "-foo -bar")
       compiler.should_receive(:system).with('java', '-foo', '-bar', '-jar', '/PATH/TO/CLOSURE.jar', '--module_output_path_prefix', "#{Dir.tmpdir}/")
+      compiler.write_all_caches
+    end
+
+    it('should pass any configured closure_flags to the compiler') do
+      compiler = compiler(:closure_flags => "--foo --bar")
+      compiler.should_receive(:system).with('java', '-jar', '/PATH/TO/CLOSURE.jar', '--foo', '--bar', '--module_output_path_prefix', "#{Dir.tmpdir}/")
       compiler.write_all_caches
     end
 
