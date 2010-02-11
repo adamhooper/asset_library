@@ -71,7 +71,7 @@ class AssetLibrary
 
     def compiler(asset_module)
       type = asset_module.compiler_type
-      config = self.config[:asset_library][:compilers][:closure] || {}
+      config = self.config[:asset_library][:compilers][type] || {}
       compilers[type] ||= Compiler.create(type, config)
     end
 

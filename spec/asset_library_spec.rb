@@ -85,22 +85,27 @@ describe(AssetLibrary) do
   describe('#compiler') do
     include TemporaryDirectory
 
-    before(:each) do
-      configure_compilers
-    end
-
     it('should return a Default compiler if no compiler type has been configured for the given asset module') do
+      configure_compilers
       asset_module = mock(:compiler_type => :default)
       AssetLibrary.compiler(asset_module).should be_a(AssetLibrary::Compiler::Default)
     end
 
     it('should return a compiler of the configured type for the given asset module, if one is given') do
+      configure_compilers
       asset_module = mock(:compiler_type => :closure)
       AssetLibrary.compiler(asset_module).should be_a(AssetLibrary::Compiler::Closure)
     end
 
-    def configure_compilers
-      config = {:asset_library => {:compilers => {:closure => {:closure_path => 'closure.jar'}}}}
+    it('should pass the right compiler configuration to the compiler') do
+      config = {:default => {:foo => 2}}
+      configure_compilers(config)
+      asset_module = mock(:compiler_type => :default)
+      AssetLibrary.compiler(asset_module).config[:foo].should == 2
+    end
+
+    def configure_compilers(config=nil)
+      config = {:asset_library => {:compilers => config || {:closure => {:closure_path => 'closure.jar'}}}}
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| YAML.dump(config, f)}
       AssetLibrary.config_path = config_path
