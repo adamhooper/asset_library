@@ -14,7 +14,7 @@ class AssetLibrary
       def write_all_caches(format = nil)
         command = [config[:java_path]]
         command.concat(config[:java_flags])
-        command << '-jar' << config[:closure_path]
+        command << '-jar' << normalize_path(config[:closure_path])
         each_compilation(format) do |config, output, *inputs|
           dependencies = normalize_dependencies(config[:dependencies]).join(',')
           command << '--module' << "#{output}:#{inputs.size}:#{dependencies}"
@@ -26,6 +26,10 @@ class AssetLibrary
       end
 
       private
+
+      def normalize_path(value)
+        (Pathname(AssetLibrary.app_root) + value).to_s
+      end
 
       def normalize_java_flags(value)
         case value

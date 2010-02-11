@@ -4,8 +4,13 @@ describe(AssetLibrary::Compiler::Closure) do
   include TemporaryDirectory
   include CompilerHelpers
 
+  before do
+    AssetLibrary.root = "#{tmp}/root"
+    AssetLibrary.app_root = "#{tmp}/app_root"
+  end
+
   def compiler(configuration = {})
-    configuration[:closure_path] = 'PATH/TO/CLOSURE.jar' unless configuration.key?(:closure_path)
+    configuration[:closure_path] = '/PATH/TO/CLOSURE.jar' unless configuration.key?(:closure_path)
     AssetLibrary::Compiler::Closure.new(configuration)
   end
 
@@ -21,7 +26,7 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.add_asset_module mock_asset_module(:format, "lib1.js", "lib1-file1.js")
       compiler.add_asset_module mock_asset_module(:format, "lib2.js", "lib2-file1.js", "lib2-file2.js")
       compiler.should_receive(:system).with(*%w'
-        java -jar PATH/TO/CLOSURE.jar
+        java -jar /PATH/TO/CLOSURE.jar
         --module lib1.js:1: --js lib1-file1.js
         --module lib2.js:2: --js lib2-file1.js --js lib2-file2.js
       ')
@@ -29,20 +34,33 @@ describe(AssetLibrary::Compiler::Closure) do
     end
 
     it('should take the path to java from the :java_path configuration option') do
-      compiler = compiler(:java_path => 'PATH/TO/JAVA')
-      compiler.should_receive(:system).with('PATH/TO/JAVA', '-jar', 'PATH/TO/CLOSURE.jar')
+      compiler = compiler(:java_path => '/PATH/TO/JAVA')
+      compiler.should_receive(:system).with('/PATH/TO/JAVA', '-jar', '/PATH/TO/CLOSURE.jar')
+      compiler.write_all_caches
+    end
+
+    it('should take the path to closure compiler from the :closure_path configuration option') do
+      compiler = compiler(:closure_path => '/CLOSURE.jar')
+      compiler.should_receive(:system).with('java', '-jar', '/CLOSURE.jar')
+      compiler.write_all_caches
+    end
+
+    it('should interpret the closure_path as relative to the application root') do
+      AssetLibrary.app_root = "#{tmp}/app_root"
+      compiler = compiler(:closure_path => 'CLOSURE')
+      compiler.should_receive(:system).with("java", '-jar', "#{tmp}/app_root/CLOSURE")
       compiler.write_all_caches
     end
 
     it('should pass any extra java_flags configured to java') do
       compiler = compiler(:java_flags => "-foo -bar")
-      compiler.should_receive(:system).with('java', '-foo', '-bar', '-jar', 'PATH/TO/CLOSURE.jar')
+      compiler.should_receive(:system).with('java', '-foo', '-bar', '-jar', '/PATH/TO/CLOSURE.jar')
       compiler.write_all_caches
     end
 
     it('should accept an array for java_flags') do
       compiler = compiler(:java_flags => %w"-foo -bar")
-      compiler.should_receive(:system).with('java', '-foo', '-bar', '-jar', 'PATH/TO/CLOSURE.jar')
+      compiler.should_receive(:system).with('java', '-foo', '-bar', '-jar', '/PATH/TO/CLOSURE.jar')
       compiler.write_all_caches
     end
 
@@ -53,7 +71,7 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.add_asset_module mock_asset_module(:format, "lib3.js", "file3.js", :dependencies => %w'lib1 lib2')
       compiler.add_asset_module mock_asset_module(:format, "lib4.js", "file4.js", :dependencies => 'lib2 lib3')
       compiler.should_receive(:system).with(*%w'
-        java -jar PATH/TO/CLOSURE.jar
+        java -jar /PATH/TO/CLOSURE.jar
         --module lib1.js:1: --js file1.js
         --module lib2.js:1:lib1 --js file2.js
         --module lib3.js:1:lib1,lib2 --js file3.js

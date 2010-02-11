@@ -21,13 +21,20 @@ class AssetLibrary
       @config_path = config_path
     end
 
-    def root
-      @root
-    end
+    #
+    # Root of your application.
+    #
+    # Paths of external programs (if required) are resolved relative
+    # to this path.
+    #
+    attr_accessor :app_root
 
-    def root=(root)
-      @root = root
-    end
+    #
+    # Root directory of your output files.
+    #
+    # Output files are resolved relative to this path.
+    #
+    attr_accessor :root
 
     def cache
       return true if @cache.nil?
