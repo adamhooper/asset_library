@@ -24,7 +24,7 @@ class AssetLibrary
         @asset_modules.each do |asset_module|
           output_path = asset_module.cache_asset(format).absolute_path
           input_paths = asset_module.assets(format).map{|asset| asset.absolute_path}
-          yield output_path, *input_paths
+          yield asset_module.config, output_path, *input_paths
         end
       end
     end

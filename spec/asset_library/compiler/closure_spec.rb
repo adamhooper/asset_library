@@ -22,8 +22,8 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.add_asset_module mock_asset_module(:format, "lib2.js", "lib2-file1.js", "lib2-file2.js")
       compiler.should_receive(:system).with(*%w'
         java -jar PATH/TO/CLOSURE.jar
-        --module lib1.js:1 --js lib1-file1.js
-        --module lib2.js:2 --js lib2-file1.js --js lib2-file2.js
+        --module lib1.js:1: --js lib1-file1.js
+        --module lib2.js:2: --js lib2-file1.js --js lib2-file2.js
       ')
       compiler.write_all_caches(:format)
     end
@@ -44,6 +44,22 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler = compiler(:java_flags => %w"-foo -bar")
       compiler.should_receive(:system).with('java', '-foo', '-bar', '-jar', 'PATH/TO/CLOSURE.jar')
       compiler.write_all_caches
+    end
+
+    it('should honor declared dependencies') do
+      compiler = self.compiler
+      compiler.add_asset_module mock_asset_module(:format, "lib1.js", "file1.js")
+      compiler.add_asset_module mock_asset_module(:format, "lib2.js", "file2.js", :dependencies => 'lib1')
+      compiler.add_asset_module mock_asset_module(:format, "lib3.js", "file3.js", :dependencies => %w'lib1 lib2')
+      compiler.add_asset_module mock_asset_module(:format, "lib4.js", "file4.js", :dependencies => 'lib2 lib3')
+      compiler.should_receive(:system).with(*%w'
+        java -jar PATH/TO/CLOSURE.jar
+        --module lib1.js:1: --js file1.js
+        --module lib2.js:1:lib1 --js file2.js
+        --module lib3.js:1:lib1,lib2 --js file3.js
+        --module lib4.js:1:lib2,lib3 --js file4.js
+      ')
+      compiler.write_all_caches(:format)
     end
   end
 end

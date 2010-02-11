@@ -15,8 +15,9 @@ class AssetLibrary
         command = [config[:java_path]]
         command.concat(config[:java_flags])
         command << '-jar' << config[:closure_path]
-        each_compilation(format) do |output, *inputs|
-          command << '--module' << "#{output}:#{inputs.size}"
+        each_compilation(format) do |config, output, *inputs|
+          dependencies = normalize_dependencies(config[:dependencies]).join(',')
+          command << '--module' << "#{output}:#{inputs.size}:#{dependencies}"
           inputs.each do |input|
             command << '--js' << input
           end
@@ -34,6 +35,14 @@ class AssetLibrary
           []
         else
           value
+        end
+      end
+
+      def normalize_dependencies(value)
+        if value.is_a?(String)
+          value.split
+        else
+          Array(value)
         end
       end
     end
