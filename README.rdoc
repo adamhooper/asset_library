@@ -249,8 +249,8 @@ key to the required modules:
           - javascripts/admin/**/*
 
 For truly optimal results, compile all files that can exist on a page
-together, with ADVANCED_OPTIMIZATIONS enabled.  This allows the
-compiler to trim off unused code, and compress all the toplevel
+together, with <tt>ADVANCED_OPTIMIZATIONS</tt> enabled.  This allows
+the compiler to trim off unused code, and compress all the toplevel
 symbols.  With judicious use of the <tt>compilations</tt> option, you
 can control precisely how your javascripts are compiled.
 
