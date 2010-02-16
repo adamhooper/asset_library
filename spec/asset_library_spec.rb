@@ -13,6 +13,10 @@ describe(AssetLibrary) do
     AssetLibrary.cache = @old_cache
   end
 
+  def config_skeleton
+    {:modules => {}, :compilers => {}}
+  end
+
   describe('#config') do
     it('should YAML.load_file the config from config_path') do
       AssetLibrary.config_path = '/config.yml'
@@ -60,15 +64,11 @@ describe(AssetLibrary) do
 
       AssetLibrary.config.should == config_skeleton.merge(:a => {:b => 'c'})
     end
-
-    def config_skeleton
-      {:asset_library => {:compilers => {}}}
-    end
   end
 
   describe('#asset_module') do
     before(:each) do
-      @config = {}
+      @config = config_skeleton
       AssetLibrary.stub!(:config).and_return(@config)
     end
 
@@ -77,7 +77,7 @@ describe(AssetLibrary) do
     end
 
     it('should return an AssetModule when given a valid key') do
-      @config[:foo] = {}
+      @config[:modules][:foo] = {}
       AssetLibrary.asset_module(:foo).should(be_a(AssetLibrary::AssetModule))
     end
   end
@@ -105,7 +105,7 @@ describe(AssetLibrary) do
     end
 
     def configure_compilers(config=nil)
-      config = {:asset_library => {:compilers => config || {:closure => {:closure_path => 'closure.jar'}}}}
+      config = {:compilers => config || {:closure => {:closure_path => 'closure.jar'}}}
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| YAML.dump(config, f)}
       AssetLibrary.config_path = config_path

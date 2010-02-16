@@ -59,8 +59,8 @@ class AssetLibrary
       else
         {}
       end
-      ret[:asset_library] ||= {}
-      ret[:asset_library][:compilers] ||= {}
+      ret[:modules] ||= {}
+      ret[:compilers] ||= {}
       @config = cache ? ret : nil
       ret
     end
@@ -70,7 +70,7 @@ class AssetLibrary
     end
 
     def asset_module(key)
-      module_config = config[key.to_sym]
+      module_config = config[:modules][key.to_sym]
       if module_config
         AssetModule.new(key, module_config)
       end
@@ -78,16 +78,12 @@ class AssetLibrary
 
     def compiler(asset_module)
       type = asset_module.compiler_type
-      config = self.config[:asset_library][:compilers][type] || {}
+      config = self.config[:compilers][type] || {}
       compilers[type] ||= Compiler.create(type, config)
     end
 
-    def cache_keys
-      config.keys - [:asset_library]
-    end
-
     def write_all_caches
-      cache_keys.each do |key|
+      config[:modules].keys.each do |key|
         m = asset_module(key)
         c = compiler(m)
         c.add_asset_module(m)
@@ -99,7 +95,7 @@ class AssetLibrary
     end
 
     def delete_all_caches
-      asset_modules = cache_keys.collect{|k| AssetLibrary.asset_module(k)}
+      asset_modules = config[:modules].keys.collect{|k| AssetLibrary.asset_module(k)}
       asset_modules.each do |m|
         FileUtils.rm_f(m.cache_asset.absolute_path)
       end

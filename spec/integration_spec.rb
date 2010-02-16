@@ -27,29 +27,29 @@ describe(AssetLibrary) do
       write_file "#{tmp}/root/jsbase/javascript-2.js.opt", "function f2(){alert('2');}"
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| f.puts <<-EOS}
-        asset_library:
-          compilers:
-            reverse:
-              foo: 1
+        compilers:
+          reverse:
+            foo: 1
 
-        stylsheets:
-          cache: lib
-          optional_suffix: opt
-          base: cssbase
-          suffix: css
-          files:
-            - stylesheet-1
-            - stylesheet-2
+        modules:
+          stylsheets:
+            cache: lib
+            optional_suffix: opt
+            base: cssbase
+            suffix: css
+            files:
+              - stylesheet-1
+              - stylesheet-2
   
-        javascripts:
-          cache: lib
-          optional_suffix: opt
-          base: jsbase
-          suffix: js
-          compiler: reverse
-          files:
-            - javascript-1
-            - javascript-2
+          javascripts:
+            cache: lib
+            optional_suffix: opt
+            base: jsbase
+            suffix: js
+            compiler: reverse
+            files:
+              - javascript-1
+              - javascript-2
       EOS
       AssetLibrary.root = "#{tmp}/root"
       AssetLibrary.config_path = config_path
@@ -64,18 +64,18 @@ describe(AssetLibrary) do
       write_file "#{tmp}/root/cssbase/lib.css"
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| f.puts <<-EOS}
-        asset_library:
-          compilers:
-            reverse:
-              foo: 1
+        compilers:
+          reverse:
+            foo: 1
 
-        stylsheets:
-          cache: lib
-          base: cssbase
-          suffix: css
-          files:
-            - stylesheet-1
-            - stylesheet-2
+        modules:
+          stylesheets:
+            cache: lib
+            base: cssbase
+            suffix: css
+            files:
+              - stylesheet-1
+              - stylesheet-2
       EOS
       AssetLibrary.root = "#{tmp}/root"
       AssetLibrary.config_path = config_path
