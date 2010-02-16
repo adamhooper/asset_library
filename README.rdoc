@@ -173,13 +173,14 @@ Compiler, and has an extendable framework to add more.
 To specify that a module is to be compiled with the Closure Compiler,
 use the compiler key for that module:
 
-    javascripts:
-      cache: library
-      compiler: closure
-      base: javascripts
-      suffix: js
-      files:
-        - javascripts/**/*
+    modules:
+      javascripts:
+        cache: library
+        compiler: closure
+        base: javascripts
+        suffix: js
+        files:
+          - javascripts/**/*
 
 You also need to configure the compiler by using a
 <tt>closure_compiler</tt> key:
