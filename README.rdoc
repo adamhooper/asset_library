@@ -58,63 +58,66 @@ A cached module is simply the concatenation of its constituent files.
 A typical configuration (Yaml) file might look like this. In Rails, this
 should be in <tt>config/asset_library.yml</tt>.
 
-  javascripts:
-    cache: library
-    optional_suffix: compressed
-    base: javascripts
-    suffix: js
-    files:
-      - vendor/jquery
+  modules:
+    javascripts:
+      cache: library
+      optional_suffix: compressed
+      base: javascripts
+      suffix: js
+      files:
+        - vendor/jquery
 
-      # jQuery UI parts we need
-      - vendor/jquery-ui/ui.core
-      - vendor/jquery-ui/ui.draggable
-      - vendor/jquery-ui/ui.droppable
-      - vendor/jquery-ui/ui.sortable
-      - vendor/jquery-ui/effects.core
+        # jQuery UI parts we need
+        - vendor/jquery-ui/ui.core
+        - vendor/jquery-ui/ui.draggable
+        - vendor/jquery-ui/ui.droppable
+        - vendor/jquery-ui/ui.sortable
+        - vendor/jquery-ui/effects.core
 
-      - lib
-      - plugins/*
-      - application
-      - initializers/*
+        - lib
+        - plugins/*
+        - application
+        - initializers/*
 
-  tiny_mce_javascripts:
-    # TinyMCE doesn't give us a choice on cache name
-    cache: vendor/tiny_mce/tiny_mce_gzip
-    optional_suffix: compressed
-    base: javascripts
-    suffix: js
-    files:
-      - vendor/tiny_mce/tiny_mce
-      # ... it's possible to bundle all of TinyMCE together with a bit of magic
+    tiny_mce_javascripts:
+      # TinyMCE doesn't give us a choice on cache name
+      cache: vendor/tiny_mce/tiny_mce_gzip
+      optional_suffix: compressed
+      base: javascripts
+      suffix: js
+      files:
+        - vendor/tiny_mce/tiny_mce
+        # ... it's possible to bundle all of TinyMCE together with a bit of magic
 
-  stylesheets:
-    cache: library
-    base: stylesheets
-    suffix: css
-    formats:
-      - ie6: [null, ie8, ie7, ie6]
-      - ie7: [null, ie8, ie7]
-      - ie8: [null, ie8]
-    files:
-      - reset
-      - application
-      - layout
-      - views/**/*
+    stylesheets:
+      cache: library
+      base: stylesheets
+      suffix: css
+      formats:
+        - ie6: [null, ie8, ie7, ie6]
+        - ie7: [null, ie8, ie7]
+        - ie8: [null, ie8]
+      files:
+        - reset
+        - application
+        - layout
+        - views/**/*
 
   # in general...
-  #module_name:
-  #  cache: cache_file
-  #  base: base_path_of_assets_in_web_root
-  #  suffix: suffix ("css" or "js")
-  #  formats:
-  #    format1: ["extra_suffix_1", "extra_suffix_2"]
-  #    format2: [null, "extra_suffix3"]
-  #  optional_suffix: optional_suffix
-  #  files:
-  #    - file1_relative_to_base
-  #    - file2_relative_to_base
-  #    - ...
+  # modules:
+  #   module_name:
+  #     cache: cache_file
+  #     base: base_path_of_assets_in_web_root
+  #     suffix: suffix ("css" or "js")
+  #     formats:
+  #       format1: ["extra_suffix_1", "extra_suffix_2"]
+  #       format2: [null, "extra_suffix3"]
+  #     optional_suffix: optional_suffix
+  #     files:
+  #       - file1_relative_to_base
+  #       - file2_relative_to_base
+  #       - ...
+  #   ...
 
 Here are what the various configuration elements mean:
 
