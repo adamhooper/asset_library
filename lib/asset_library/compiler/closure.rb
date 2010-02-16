@@ -35,7 +35,8 @@ class AssetLibrary
             end
             moves["#{tmpdir}/#{asset_module.name}.js"] = output_path(asset_module, format)
           end
-          system *command
+          system *command or
+            raise Error, "closure compiler failed"
           move_files(moves)
         end
       end

@@ -4,6 +4,8 @@ require File.dirname(__FILE__) + '/compiler/closure'
 
 class AssetLibrary
   module Compiler
+    Error = Class.new(RuntimeError)
+
     class << self
       # Create an instance of a compiler for the given compiler type.
       def create(type, config={})
