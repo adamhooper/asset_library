@@ -17,27 +17,28 @@ class AssetLibrary
 
       def write_all_caches(format = nil)
         each_compilation_group do |asset_modules, config|
-          command = [config[:java]]
-          command.concat(config[:java_flags])
-          command << '-jar' << config[:path]
-          command.concat(config[:flags])
           # Closure can't seem to output to different directories.
           # Output to a temporary location, and move it into place.
-          tmpdir = Dir.tmpdir
-          command << '--module_output_path_prefix' << "#{tmpdir}/"
-          moves = {}
-          asset_modules.each do |asset_module|
-            input_paths = input_paths(asset_module, format)
-            dependencies = normalize_words(asset_module.config[:dependencies]).join(',')
-            command << '--module' << "#{asset_module.name}:#{input_paths.size}:#{dependencies}"
-            input_paths.each do |input|
-              command << '--js' << input
+          Util.mktmpdir do |tmpdir|
+            command = [config[:java]]
+            command.concat(config[:java_flags])
+            command << '-jar' << config[:path]
+            command.concat(config[:flags])
+            command << '--module_output_path_prefix' << "#{tmpdir}/"
+            moves = {}
+            asset_modules.each do |asset_module|
+              input_paths = input_paths(asset_module, format)
+              dependencies = normalize_words(asset_module.config[:dependencies]).join(',')
+              command << '--module' << "#{asset_module.name}:#{input_paths.size}:#{dependencies}"
+              input_paths.each do |input|
+                command << '--js' << input
+              end
+              moves["#{tmpdir}/#{asset_module.name}.js"] = output_path(asset_module, format)
             end
-            moves["#{tmpdir}/#{asset_module.name}.js"] = output_path(asset_module, format)
+            system *command or
+              raise Error, "closure compiler failed"
+            move_files(moves)
           end
-          system *command or
-            raise Error, "closure compiler failed"
-          move_files(moves)
         end
       end
 
