@@ -7,7 +7,7 @@ class AssetLibrary
       def initialize(config)
         super
         config[:path] or
-          raise ConfigurationError, "Please set path of closure jar with compiler.path configuration setting"
+          raise ConfigurationError, "Please set path of closure jar with closure_compiler.path configuration setting"
         config[:java] ||= 'java'
         config[:java_flags] = normalize_flags(config[:java_flags])
         config[:path] = normalize_path(config[:path])
