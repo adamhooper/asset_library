@@ -187,7 +187,7 @@ You also need to configure the compiler by using a
 
     closure_compiler:
       path: /path/to/closure.jar
-      flags: --TODO
+      flags: --warning_level QUIET
 
 The full list of Closure Compiler settings are:
 
