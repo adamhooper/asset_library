@@ -9,7 +9,7 @@ describe(AssetLibrary::Compiler) do
     end
 
     it('should return a Closure compiler for :closure') do
-      Compiler.create(:closure, :closure_path => '').should be_a(Compiler::Closure)
+      Compiler.create(:closure, :path => '').should be_a(Compiler::Closure)
     end
 
     it('should pass the configuration to the compiler') do

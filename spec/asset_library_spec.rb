@@ -105,7 +105,7 @@ describe(AssetLibrary) do
     end
 
     def configure_compilers(config={})
-      config = {:closure_compiler => {:closure_path => 'closure.jar'}}.merge(config)
+      config = {:closure_compiler => {:path => 'closure.jar'}}.merge(config)
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| YAML.dump(config, f)}
       AssetLibrary.config_path = config_path

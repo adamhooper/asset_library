@@ -6,12 +6,12 @@ class AssetLibrary
     class Closure < Base
       def initialize(config)
         super
-        config[:closure_path] or
-          raise ConfigurationError, "Please set path of closure jar with compiler.closure_path configuration setting"
+        config[:path] or
+          raise ConfigurationError, "Please set path of closure jar with compiler.path configuration setting"
         config[:java] ||= 'java'
         config[:java_flags] = normalize_flags(config[:java_flags])
-        config[:closure_path] = normalize_path(config[:closure_path])
-        config[:closure_flags] = normalize_flags(config[:closure_flags])
+        config[:path] = normalize_path(config[:path])
+        config[:flags] = normalize_flags(config[:flags])
         config[:compilations] = normalize_compilations(config[:compilations])
       end
 
@@ -19,8 +19,8 @@ class AssetLibrary
         each_compilation_group do |asset_modules, config|
           command = [config[:java]]
           command.concat(config[:java_flags])
-          command << '-jar' << config[:closure_path]
-          command.concat(config[:closure_flags])
+          command << '-jar' << config[:path]
+          command.concat(config[:flags])
           # Closure can't seem to output to different directories.
           # Output to a temporary location, and move it into place.
           tmpdir = Dir.tmpdir
@@ -110,8 +110,8 @@ class AssetLibrary
           {:modules => normalize_words(value)}
         else
           value[:modules] = normalize_words(value[:modules])
-          value[:closure_path] = normalize_path(value[:closure_path]) if value[:closure_path]
-          value[:closure_flags] = normalize_words(value[:closure_flags])
+          value[:path] = normalize_path(value[:path]) if value[:path]
+          value[:flags] = normalize_words(value[:flags])
           value
         end
       end

@@ -10,7 +10,7 @@ describe(AssetLibrary::Compiler::Closure) do
   end
 
   def compiler(configuration = {})
-    configuration[:closure_path] = '/PATH/TO/CLOSURE.jar' unless configuration.key?(:closure_path)
+    configuration[:path] = '/PATH/TO/CLOSURE.jar' unless configuration.key?(:path)
     compiler = AssetLibrary::Compiler::Closure.new(configuration)
     compiler.stub!(:system)
     compiler.stub!(:move_files)
@@ -23,7 +23,7 @@ describe(AssetLibrary::Compiler::Closure) do
 
   describe('#initialize') do
     it('should cry if the path to the compiler is not set') do
-      lambda{compiler(:closure_path => nil)}.should raise_error(AssetLibrary::ConfigurationError)
+      lambda{compiler(:path => nil)}.should raise_error(AssetLibrary::ConfigurationError)
     end
   end
 
@@ -46,16 +46,16 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.write_all_caches(:format)
     end
 
-    it('should take the path to closure compiler from the :closure_path configuration option') do
-      compiler = compiler(:closure_path => '/CLOSURE.jar')
+    it('should take the path to closure compiler from the :path configuration option') do
+      compiler = compiler(:path => '/CLOSURE.jar')
       add_one_compilation(compiler)
       compiler.should_receive(:system).with{ |*args| args[1..2] == ['-jar', '/CLOSURE.jar'] }
       compiler.write_all_caches(:format)
     end
 
-    it('should interpret the closure_path as relative to the application root') do
+    it('should interpret the path as relative to the application root') do
       AssetLibrary.app_root = "#{tmp}/app_root"
-      compiler = compiler(:closure_path => 'CLOSURE')
+      compiler = compiler(:path => 'CLOSURE')
       add_one_compilation(compiler)
       compiler.should_receive(:system).with{ |*args| args[1..2] == ['-jar', "#{tmp}/app_root/CLOSURE"] }
       compiler.write_all_caches(:format)
@@ -75,8 +75,8 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.write_all_caches(:format)
     end
 
-    it('should pass any configured closure_flags to the compiler') do
-      compiler = compiler(:closure_flags => "--foo --bar")
+    it('should pass any configured flags to the compiler') do
+      compiler = compiler(:flags => "--foo --bar")
       add_one_compilation(compiler)
       compiler.should_receive(:system).with{ |*args| args[3..4] == ['--foo', '--bar'] }
       compiler.write_all_caches(:format)
@@ -108,7 +108,7 @@ describe(AssetLibrary::Compiler::Closure) do
     end
 
     it('should support setting per-compilation closure flags') do
-      compiler = self.compiler(:compilations => [{:modules => 'lib1', :closure_flags => '--foo --bar'}, {:modules => 'lib2', :closure_flags => '--baz'}])
+      compiler = self.compiler(:compilations => [{:modules => 'lib1', :flags => '--foo --bar'}, {:modules => 'lib2', :flags => '--baz'}])
       compiler.add_asset_module mock_asset_module('lib1', :format, "lib1.js", "file1.js")
       compiler.add_asset_module mock_asset_module('lib2', :format, "lib2.js", "file2.js")
       compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --foo --bar --module_output_path_prefix #{Dir.tmpdir}/ --module lib1:1: --js file1.js")
@@ -117,7 +117,7 @@ describe(AssetLibrary::Compiler::Closure) do
     end
 
     it('should use global compiler configuration where no per-compilation closure flags are given') do
-      compiler = self.compiler(:closure_flags => '--global', :compilations => ['lib1', {:modules => 'lib2', :closure_flags => '--local'}])
+      compiler = self.compiler(:flags => '--global', :compilations => ['lib1', {:modules => 'lib2', :flags => '--local'}])
       compiler.add_asset_module mock_asset_module('lib1', :format, 'lib1.js', 'file1.js')
       compiler.add_asset_module mock_asset_module('lib2', :format, 'lib1.js', 'file2.js')
       compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --global --module_output_path_prefix #{Dir.tmpdir}/ --module lib1:1: --js file1.js")
