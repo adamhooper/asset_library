@@ -14,7 +14,7 @@ describe(AssetLibrary) do
   end
 
   def config_skeleton
-    {:modules => {}, :compilers => {}}
+    {:modules => {}}
   end
 
   describe('#config') do
@@ -98,14 +98,14 @@ describe(AssetLibrary) do
     end
 
     it('should pass the right compiler configuration to the compiler') do
-      config = {:default => {:foo => 2}}
+      config = {:default_compiler => {:foo => 2}}
       configure_compilers(config)
       asset_module = mock(:compiler_type => :default)
       AssetLibrary.compiler(asset_module).config[:foo].should == 2
     end
 
-    def configure_compilers(config=nil)
-      config = {:compilers => config || {:closure => {:closure_path => 'closure.jar'}}}
+    def configure_compilers(config={})
+      config = {:closure_compiler => {:closure_path => 'closure.jar'}}.merge(config)
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| YAML.dump(config, f)}
       AssetLibrary.config_path = config_path
