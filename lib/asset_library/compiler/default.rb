@@ -2,10 +2,10 @@ class AssetLibrary
   module Compiler
     class Default < Base
       def write_all_caches(format = nil)
-        each_compilation(format) do |asset_module, output, *inputs|
-          open(output, 'w') do |file|
-            inputs.each do |input|
-              file << File.read(input)
+        asset_modules.each do |asset_module|
+          open(output_path(asset_module, format), 'w') do |file|
+            input_paths(asset_module, format).each do |path|
+              file << File.read(path)
             end
           end
         end

@@ -12,28 +12,32 @@ class AssetLibrary
         config[:java_flags] = normalize_flags(config[:java_flags])
         config[:closure_path] = normalize_path(config[:closure_path])
         config[:closure_flags] = normalize_flags(config[:closure_flags])
+        config[:compilations] = normalize_compilations(config[:compilations])
       end
 
       def write_all_caches(format = nil)
-        command = [config[:java]]
-        command.concat(config[:java_flags])
-        command << '-jar' << config[:closure_path]
-        command.concat(config[:closure_flags])
-        # Closure can't seem to output to different directories.
-        # Output to a temporary location, and move it into place.
-        tmpdir = Dir.tmpdir
-        command << '--module_output_path_prefix' << "#{tmpdir}/"
-        moves = {}
-        each_compilation(format) do |asset_module, output, *inputs|
-          dependencies = normalize_dependencies(asset_module.config[:dependencies]).join(',')
-          command << '--module' << "#{asset_module.name}:#{inputs.size}:#{dependencies}"
-          inputs.each do |input|
-            command << '--js' << input
+        each_compilation_group do |asset_modules, config|
+          command = [config[:java]]
+          command.concat(config[:java_flags])
+          command << '-jar' << config[:closure_path]
+          command.concat(config[:closure_flags])
+          # Closure can't seem to output to different directories.
+          # Output to a temporary location, and move it into place.
+          tmpdir = Dir.tmpdir
+          command << '--module_output_path_prefix' << "#{tmpdir}/"
+          moves = {}
+          asset_modules.each do |asset_module|
+            input_paths = input_paths(asset_module, format)
+            dependencies = normalize_words(asset_module.config[:dependencies]).join(',')
+            command << '--module' << "#{asset_module.name}:#{input_paths.size}:#{dependencies}"
+            input_paths.each do |input|
+              command << '--js' << input
+            end
+            moves["#{tmpdir}/#{asset_module.name}.js"] = output_path(asset_module, format)
           end
-          moves["#{tmpdir}/#{asset_module.name}.js"] = output
+          system *command
+          move_files(moves)
         end
-        system *command
-        move_files(moves)
       end
 
       # This is stubbed in unit tests, along with #system
@@ -45,6 +49,32 @@ class AssetLibrary
       end
 
       private
+
+      # Yield groups of asset modules that are to be compiled
+      # together.
+      def each_compilation_group
+        compilations = config[:compilations]
+        groups = Array.new(compilations.size){[]}
+
+        compilation_indices = {}
+        compilations.each_with_index do |compilation, i|
+          compilation[:modules].each { |n| compilation_indices[n] = i }
+        end
+
+        asset_modules.each do |asset_module|
+          if index = compilation_indices[asset_module.name]
+            groups[index] << asset_module
+          else
+            groups << [asset_module]
+          end
+        end
+
+        groups.each_with_index do |asset_modules, index|
+          next if asset_modules.empty?
+          config = self.config.merge(compilations[index] || {})
+          yield asset_modules, config
+        end
+      end
 
       def normalize_path(value)
         (Pathname(AssetLibrary.app_root) + value).to_s
@@ -61,11 +91,28 @@ class AssetLibrary
         end
       end
 
-      def normalize_dependencies(value)
+      def normalize_words(value)
         if value.is_a?(String)
           value.split
         else
           Array(value)
+        end
+      end
+
+      def normalize_compilations(value)
+        (value || []).map do |compilation|
+          normalize_compilation(compilation)
+        end
+      end
+
+      def normalize_compilation(value)
+        if value.is_a?(String)
+          {:modules => normalize_words(value)}
+        else
+          value[:modules] = normalize_words(value[:modules])
+          value[:closure_path] = normalize_path(value[:closure_path]) if value[:closure_path]
+          value[:closure_flags] = normalize_words(value[:closure_flags])
+          value
         end
       end
     end

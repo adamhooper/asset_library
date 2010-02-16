@@ -5,9 +5,9 @@ describe(AssetLibrary) do
 
   class ReverseCompiler < AssetLibrary::Compiler::Base
     def write_all_caches(format = nil)
-      each_compilation(format) do |config, output, *inputs|
-        open(output, 'w') do |file|
-          inputs.reverse_each do |input|
+      asset_modules.each do |asset_module|
+        open(output_path(asset_module, format), 'w') do |file|
+          input_paths(asset_module, format).reverse_each do |input|
             file << File.read(input)
           end
         end

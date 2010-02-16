@@ -18,14 +18,14 @@ class AssetLibrary
 
       protected
 
-      # Yields each output path along with its input paths, all
-      # absolute.
-      def each_compilation(format = nil)
-        @asset_modules.each do |asset_module|
-          output_path = asset_module.cache_asset(format).absolute_path
-          input_paths = asset_module.assets(format).map{|asset| asset.absolute_path}
-          yield asset_module, output_path, *input_paths
-        end
+      # Return the absolute output path for the given asset module.
+      def output_path(asset_module, format)
+        asset_module.cache_asset(format).absolute_path
+      end
+
+      # Return the absolute input paths for the given asset module.
+      def input_paths(asset_module, format)
+        asset_module.assets(format).map{|asset| asset.absolute_path}
       end
     end
   end
