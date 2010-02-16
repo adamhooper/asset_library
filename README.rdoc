@@ -163,6 +163,96 @@ not exist will be excluded; globbing will include/exclude files with
 <tt>formats</tt> as appropriate; and files without <tt>optional_suffix</tt>
 will not be output alongside files with the same name endowed with the suffix.
 
+== Compilers
+
+If you would like asset library to do more than just concatenate the
+files to produce your modules, then you need to specify a compiler.
+Asset Library currently ships with support for one compiler: Closure
+Compiler, and has an extendable framework to add more.
+
+To specify that a module is to be compiled with the Closure Compiler,
+use the compiler key for that module:
+
+    javascripts:
+      cache: library
+      compiler: closure
+      base: javascripts
+      suffix: js
+      files:
+        - javascripts/**/*
+
+You also need to configure the compiler by using a
+<tt>closure_compiler</tt> key:
+
+    closure_compiler:
+      path: /path/to/closure.jar
+      flags: --TODO
+
+The full list of Closure Compiler settings are:
+
+<tt>path</tt>: The path to the Closure Compiler jar.  This has no
+default, and must be given.
+
+<tt>flags</tt>: Flags to pass to Closure Compiler.  Default: no flags.
+
+<tt>java</tt>: The java command to use.  This will be searched for in
+the <tt>PATH</tt> unless it is an absolute filename.  Default:
+<tt>java</tt>.
+
+<tt>java_flags</tt>: Flags to pass to the java interpreter.  Default:
+no flags.
+
+<tt>compilations</tt>: Specifies which modules to compile together,
+and any extra flags needed for compiling these modules.  In the
+simpler case, the value is an array of string specifying groups of
+modules.  For example:
+
+    closure_compiler:
+      compilations:
+        - one two
+        - three
+
+This means modules <tt>one</tt> and <tt>two</tt> will be compiled
+together, then module three on its own, then any other modules
+declared which are to be processed by Closure Compiler are created one
+at a time.
+
+If you need to use different flags for each compilation, you may
+specify a hash for a compilation, for example:
+
+    closure_compiler:
+      compilations:
+        - modules: one two
+          flags: --compilation_level ADVANCED_OPTIMIZATIONS
+        - three
+
+Finally, to specify dependencies between modules, add a dependencies
+key to the required modules:
+
+    modules
+      global:
+        cache: library
+        compiler: closure
+        base: javascripts
+        suffix: js
+        files:
+          - javascripts/global/**/*
+
+      admin:
+        cache: library
+        compiler: closure
+        dependencies: global
+        base: javascripts
+        suffix: js
+        files:
+          - javascripts/admin/**/*
+
+For truly optimal results, compile all files that can exist on a page
+together, with ADVANCED_OPTIMIZATIONS enabled.  This allows the
+compiler to trim off unused code, and compress all the toplevel
+symbols.  With judicious use of the <tt>compilations</tt> option, you
+can control precisely how your javascripts are compiled.
+
 == Copyright
 
 I believe in software freedom, not any abomination thereof. This project is
