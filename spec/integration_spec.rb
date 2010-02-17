@@ -7,7 +7,7 @@ describe(AssetLibrary) do
     def write_all_caches(format = nil)
       asset_modules.each do |asset_module|
         open(output_path(asset_module, format), 'w') do |file|
-          file.puts config[:header]
+          file.print config[:header]
           input_paths(asset_module, format).reverse_each do |input|
             file << File.read(input)
           end
@@ -28,8 +28,9 @@ describe(AssetLibrary) do
       write_file "#{tmp}/root/jsbase/javascript-2.js.opt", "function f2(){alert('2');}"
       config_path = "#{tmp}/config.yml"
       open(config_path, 'w'){|f| f.puts <<-EOS}
-        reverse_compiler:
-          header: HEADER
+        compilers:
+          reverse:
+            header: HEADER
 
         modules:
           stylsheets:
@@ -55,7 +56,7 @@ describe(AssetLibrary) do
       AssetLibrary.config_path = config_path
       AssetLibrary.write_all_caches
       File.read("#{tmp}/root/cssbase/lib.css").should == "style1 { background: #000 }style2 { background: #fff }"
-      File.read("#{tmp}/root/jsbase/lib.js").should == "HEADER\nfunction f2(){alert('2');}function f1(){alert('1');}"
+      File.read("#{tmp}/root/jsbase/lib.js").should == "HEADERfunction f2(){alert('2');}function f1(){alert('1');}"
     end
   end
 

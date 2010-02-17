@@ -60,6 +60,7 @@ class AssetLibrary
         {}
       end
       ret[:modules] ||= {}
+      ret[:compilers] ||= {}
       @config = cache ? ret : nil
       ret
     end
@@ -77,7 +78,7 @@ class AssetLibrary
 
     def compiler(asset_module)
       type = asset_module.compiler_type
-      config = self.config[:"#{type}_compiler"] || {}
+      config = self.config[:compilers][type] || {}
       compilers[type] ||= Compiler.create(type, config)
     end
 
