@@ -64,6 +64,19 @@ describe(AssetLibrary) do
 
       AssetLibrary.config.should == config_skeleton.merge(:a => {:b => 'c'})
     end
+
+    it('should accept a v0.4 config file with a deprecation warning') do
+      AssetLibrary.cache = false
+      AssetLibrary.config_path = '/config.yml'
+
+      File.stub!(:exist?).with('/config.yml').and_return(true)
+      YAML.should_receive(:load_file).with('/config.yml').and_return(
+        { 'a' => { 'files' => ['a.js'] } }
+      )
+      AssetLibrary.should_receive(:warn)
+
+      AssetLibrary.config.should == { :compilers => {}, :modules => { :a => { :files => ['a.js'] } } }
+    end
   end
 
   describe('#asset_module') do

@@ -59,6 +59,15 @@ class AssetLibrary
       else
         {}
       end
+      if !ret[:modules] && ret.values.any?{|value| value.is_a?(Hash) && value[:files]}
+        warn <<-EOS.gsub(/^ *\|/, '')
+          |  WARNING: Your asset library configuration follows a
+          |  deprecated format.  Please move all your asset modules
+          |  under a "modules:" key, as described in the
+          |  documentation.
+        EOS
+        ret = { :modules => ret }
+      end
       ret[:modules] ||= {}
       ret[:compilers] ||= {}
       @config = cache ? ret : nil
