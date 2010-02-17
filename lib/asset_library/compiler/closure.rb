@@ -28,7 +28,7 @@ class AssetLibrary
             moves = {}
             asset_modules.each do |asset_module|
               input_paths = input_paths(asset_module, format)
-              dependencies = normalize_words(asset_module.config[:dependencies]).join(',')
+              dependencies = Array(asset_module.config[:dependencies]).join(',')
               command << '--module' << "#{asset_module.name}:#{input_paths.size}:#{dependencies}"
               input_paths.each do |input|
                 command << '--js' << input
@@ -93,14 +93,6 @@ class AssetLibrary
         end
       end
 
-      def normalize_words(words)
-        if words.is_a?(String)
-          words.split
-        else
-          Array(words)
-        end
-      end
-
       def normalize_compilations(compilations)
         (compilations || []).map do |compilation|
           normalize_compilation(compilation)
@@ -108,13 +100,13 @@ class AssetLibrary
       end
 
       def normalize_compilation(compilation)
-        if compilation.is_a?(String)
-          {:modules => normalize_words(compilation)}
-        else
-          compilation[:modules] = normalize_words(compilation[:modules])
+        if compilation.is_a?(Hash)
+          compilation[:modules] = Array(compilation[:modules])
           compilation[:path] = normalize_path(compilation[:path]) if compilation[:path]
-          compilation[:flags] = normalize_words(compilation[:flags])
+          compilation[:flags] = normalize_flags(compilation[:flags])
           compilation
+        else
+          {:modules => Array(compilation)}
         end
       end
     end

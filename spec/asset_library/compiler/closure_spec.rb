@@ -93,16 +93,14 @@ describe(AssetLibrary::Compiler::Closure) do
       compiler.add_asset_module mock_asset_module('lib1', :format, "lib1.js", "file1.js")
       compiler.add_asset_module mock_asset_module('lib2', :format, "lib2.js", "file2.js", :dependencies => 'lib1')
       compiler.add_asset_module mock_asset_module('lib3', :format, "lib3.js", "file3.js", :dependencies => %w'lib1 lib2')
-      compiler.add_asset_module mock_asset_module('lib4', :format, "lib4.js", "file4.js", :dependencies => 'lib2 lib3')
       compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --module_output_path_prefix #{@tmpdir}/ --module lib1:1:          --js file1.js").and_return(true)
       compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --module_output_path_prefix #{@tmpdir}/ --module lib2:1:lib1      --js file2.js").and_return(true)
       compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --module_output_path_prefix #{@tmpdir}/ --module lib3:1:lib1,lib2 --js file3.js").and_return(true)
-      compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --module_output_path_prefix #{@tmpdir}/ --module lib4:1:lib2,lib3 --js file4.js").and_return(true)
       compiler.write_all_caches(:format)
     end
 
     it('should compile modules together according to configured compilations, and compile the remainder individually') do
-      compiler = self.compiler(:compilations => ['lib1 lib3', 'lib4'])
+      compiler = self.compiler(:compilations => [%w'lib1 lib3', 'lib4'])
       compiler.add_asset_module mock_asset_module('lib1', :format, "lib1.js", "file1.js")
       compiler.add_asset_module mock_asset_module('lib2', :format, "lib2.js", "file2.js")
       compiler.add_asset_module mock_asset_module('lib3', :format, "lib3.js", "file3.js")
@@ -132,7 +130,7 @@ describe(AssetLibrary::Compiler::Closure) do
     end
 
     it('should ignore names in compilations that do not match asset modules') do
-      compiler = self.compiler(:compilations => ['lib1 lib3', 'lib4'])
+      compiler = self.compiler(:compilations => [%w'lib1 lib3', 'lib4'])
       compiler.add_asset_module mock_asset_module('lib1', :format, "lib1.js", "file1.js")
       compiler.add_asset_module mock_asset_module('lib2', :format, "lib2.js", "file2.js")
       compiler.should_receive(:system).with(*%W"java -jar /PATH/TO/CLOSURE.jar --module_output_path_prefix #{@tmpdir}/ --module lib1:1: --js file1.js").and_return(true)
