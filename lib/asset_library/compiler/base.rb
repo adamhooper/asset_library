@@ -13,7 +13,7 @@ class AssetLibrary
       end
 
       def write_all_caches(format = nil)
-        raise "abstract method called"
+        raise NotImplementedError, "abstract method"
       end
 
       protected
