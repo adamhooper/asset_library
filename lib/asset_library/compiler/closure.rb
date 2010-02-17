@@ -78,43 +78,43 @@ class AssetLibrary
         end
       end
 
-      def normalize_path(value)
-        (Pathname(AssetLibrary.app_root) + value).to_s
+      def normalize_path(path)
+        (Pathname(AssetLibrary.app_root) + path).to_s
       end
 
-      def normalize_flags(value)
-        case value
+      def normalize_flags(flags)
+        case flags
         when String
-          Shellwords.shellwords(value)
+          Shellwords.shellwords(flags)
         when nil
           []
         else
-          value
+          flags
         end
       end
 
-      def normalize_words(value)
-        if value.is_a?(String)
-          value.split
+      def normalize_words(words)
+        if words.is_a?(String)
+          words.split
         else
-          Array(value)
+          Array(words)
         end
       end
 
-      def normalize_compilations(value)
-        (value || []).map do |compilation|
+      def normalize_compilations(compilations)
+        (compilations || []).map do |compilation|
           normalize_compilation(compilation)
         end
       end
 
-      def normalize_compilation(value)
-        if value.is_a?(String)
-          {:modules => normalize_words(value)}
+      def normalize_compilation(compilation)
+        if compilation.is_a?(String)
+          {:modules => normalize_words(compilation)}
         else
-          value[:modules] = normalize_words(value[:modules])
-          value[:path] = normalize_path(value[:path]) if value[:path]
-          value[:flags] = normalize_words(value[:flags])
-          value
+          compilation[:modules] = normalize_words(compilation[:modules])
+          compilation[:path] = normalize_path(compilation[:path]) if compilation[:path]
+          compilation[:flags] = normalize_words(compilation[:flags])
+          compilation
         end
       end
     end
