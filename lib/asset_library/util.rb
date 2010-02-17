@@ -9,7 +9,7 @@ class AssetLibrary
     end
 
     # Ruby 1.8.7's Dir.mktmpdir.
-    def mktmpdir(prefix_suffix=nil, tmpdir=nil)
+    def self.mktmpdir(prefix_suffix=nil, tmpdir=nil)
       case prefix_suffix
       when nil
         prefix = "d"
