@@ -1,3 +1,4 @@
+require 'shellwords'
 require File.dirname(__FILE__) + '/asset'
 
 class AssetLibrary
@@ -14,6 +15,11 @@ class AssetLibrary
     # Returns the type of compiler to use for this asset module.
     def compiler_type
       (config[:compiler] || :default).to_sym
+    end
+
+    # Returns the Array of compiler flags to use.
+    def compiler_flags
+      Util.normalize_flags(config[:compiler_flags])
     end
 
     # Returns an Array of Assets to include.

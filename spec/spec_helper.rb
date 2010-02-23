@@ -49,6 +49,7 @@ module CompilerHelpers
     asset_module = mock(:name => name)
     asset_module.stub!(:cache_asset).with(format).and_return(output_asset)
     asset_module.stub!(:assets).with(format).and_return(input_assets)
+    asset_module.stub!(:compiler_flags).and_return(config[:compiler_flags] || [])
     asset_module.stub!(:config).and_return(config)
     asset_module
   end
