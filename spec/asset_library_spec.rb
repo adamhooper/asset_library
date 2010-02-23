@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/spec_helper'
+require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe(AssetLibrary) do
   before(:each) do
@@ -13,6 +13,10 @@ describe(AssetLibrary) do
     AssetLibrary.cache = @old_cache
   end
 
+  def config_skeleton
+    {:modules => {}, :compilers => {}}
+  end
+
   describe('#config') do
     it('should YAML.load_file the config from config_path') do
       AssetLibrary.config_path = '/config.yml'
@@ -21,10 +25,10 @@ describe(AssetLibrary) do
       AssetLibrary.config
     end
 
-    it('should return {} if config_path does not exist') do
+    it('should return a skeletal configuration if config_path does not exist') do
       AssetLibrary.config_path = '/config.yml'
       File.stub!(:exist?).with('/config.yml').and_return(false)
-      AssetLibrary.config.should == {}
+      AssetLibrary.config.should == config_skeleton
     end
 
     it('should cache config if cache is set') do
@@ -58,13 +62,26 @@ describe(AssetLibrary) do
         { 'a' => { 'b' =>  'c' } }
       )
 
-      AssetLibrary.config.should == { :a => { :b => 'c' } }
+      AssetLibrary.config.should == config_skeleton.merge(:a => {:b => 'c'})
+    end
+
+    it('should accept a v0.4 config file with a deprecation warning') do
+      AssetLibrary.cache = false
+      AssetLibrary.config_path = '/config.yml'
+
+      File.stub!(:exist?).with('/config.yml').and_return(true)
+      YAML.should_receive(:load_file).with('/config.yml').and_return(
+        { 'a' => { 'files' => ['a.js'] } }
+      )
+      AssetLibrary.should_receive(:warn)
+
+      AssetLibrary.config.should == { :compilers => {}, :modules => { :a => { :files => ['a.js'] } } }
     end
   end
 
   describe('#asset_module') do
     before(:each) do
-      @config = {}
+      @config = config_skeleton
       AssetLibrary.stub!(:config).and_return(@config)
     end
 
@@ -73,25 +90,39 @@ describe(AssetLibrary) do
     end
 
     it('should return an AssetModule when given a valid key') do
-      @config[:foo] = {}
+      @config[:modules][:foo] = {}
       AssetLibrary.asset_module(:foo).should(be_a(AssetLibrary::AssetModule))
     end
   end
 
-  describe('#write_all_caches') do
-    it('should call write_all_caches on all asset_modules') do
-      mock1 = mock
-      mock2 = mock
+  describe('#compiler') do
+    include TemporaryDirectory
 
-      mock1.should_receive(:write_all_caches)
-      mock2.should_receive(:write_all_caches)
+    it('should return a Default compiler if no compiler type has been configured for the given asset module') do
+      configure_compilers
+      asset_module = mock(:compiler_type => :default)
+      AssetLibrary.compiler(asset_module).should be_a(AssetLibrary::Compiler::Default)
+    end
 
-      AssetLibrary.stub!(:asset_module).with(:mock1).and_return(mock1)
-      AssetLibrary.stub!(:asset_module).with(:mock2).and_return(mock2)
+    it('should return a compiler of the configured type for the given asset module, if one is given') do
+      configure_compilers
+      asset_module = mock(:compiler_type => :closure)
+      AssetLibrary.compiler(asset_module).should be_a(AssetLibrary::Compiler::Closure)
+    end
 
-      AssetLibrary.stub!(:config).and_return({ :mock1 => {}, :mock2 => {} })
+    it('should pass the right compiler configuration to the compiler') do
+      config = {:default => {:foo => 2}}
+      configure_compilers(config)
+      asset_module = mock(:compiler_type => :default)
+      AssetLibrary.compiler(asset_module).config[:foo].should == 2
+    end
 
-      AssetLibrary.write_all_caches
+    def configure_compilers(config=nil)
+      config = {:compilers => config || {:closure => {:path => 'closure.jar'}}}
+      config_path = "#{tmp}/config.yml"
+      open(config_path, 'w'){|f| YAML.dump(config, f)}
+      AssetLibrary.config_path = config_path
+      AssetLibrary.config
     end
   end
 end

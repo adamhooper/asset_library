@@ -5,10 +5,13 @@ rescue LoadError
   require 'glob_fu'
 end
 
+require File.dirname(__FILE__) + '/asset_library/compiler'
 require File.dirname(__FILE__) + '/asset_library/asset_module'
 require File.dirname(__FILE__) + '/asset_library/util'
 
 class AssetLibrary
+  ConfigurationError = Class.new(RuntimeError)
+
   class << self
     def config_path
       @config_path
@@ -18,13 +21,20 @@ class AssetLibrary
       @config_path = config_path
     end
 
-    def root
-      @root
-    end
+    #
+    # Root of your application.
+    #
+    # Paths of external programs (if required) are resolved relative
+    # to this path.
+    #
+    attr_accessor :app_root
 
-    def root=(root)
-      @root = root
-    end
+    #
+    # Root directory of your output files.
+    #
+    # Output files are resolved relative to this path.
+    #
+    attr_accessor :root
 
     def cache
       return true if @cache.nil?
@@ -32,8 +42,7 @@ class AssetLibrary
     end
 
     def cache=(cache)
-      @config = nil
-      @cache_vars = nil
+      reset!
       @cache = cache
     end
 
@@ -50,22 +59,62 @@ class AssetLibrary
       else
         {}
       end
+      if !ret[:modules] && ret.values.any?{|value| value.is_a?(Hash) && value[:files]}
+        warn <<-EOS.gsub(/^ *\|/, '')
+          |  WARNING: Your asset library configuration follows a
+          |  deprecated format.  Please move all your asset modules
+          |  under a "modules:" key, as described in the
+          |  documentation.
+        EOS
+        ret = { :modules => ret }
+      end
+      ret[:modules] ||= {}
+      ret[:compilers] ||= {}
       @config = cache ? ret : nil
       ret
     end
 
+    def compilers
+      @compilers ||= {}
+    end
+
     def asset_module(key)
-      module_config = config[key.to_sym]
+      module_config = config[:modules][key.to_sym]
       if module_config
-        AssetModule.new(module_config)
+        AssetModule.new(key, module_config)
       end
     end
 
+    def compiler(asset_module)
+      type = asset_module.compiler_type
+      config = self.config[:compilers][type] || {}
+      compilers[type] ||= Compiler.create(type, config)
+    end
+
     def write_all_caches
-      config.keys.each do |key|
+      config[:modules].keys.each do |key|
         m = asset_module(key)
-        m.write_all_caches
+        c = compiler(m)
+        c.add_asset_module(m)
       end
+
+      compilers.values.each do |compiler|
+        compiler.write_all_caches
+      end
+    end
+
+    def delete_all_caches
+      asset_modules = config[:modules].keys.collect{|k| AssetLibrary.asset_module(k)}
+      asset_modules.each do |m|
+        FileUtils.rm_f(m.cache_asset.absolute_path)
+      end
+    end
+
+    def reset!
+      @config = nil
+      @cache_vars = nil
+      @compilers = nil
+      Compiler.reset!
     end
   end
 end

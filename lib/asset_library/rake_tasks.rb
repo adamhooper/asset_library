@@ -2,8 +2,9 @@ def init_asset_library
   require 'asset_library'
 
   # TODO: Find a way to not-hard-code these paths?
-  AssetLibrary.config_path = File.join(RAILS_ROOT, 'config', 'asset_library.yml')
-  AssetLibrary.root = File.join(RAILS_ROOT, 'public')
+  AssetLibrary.config_path = Rails.root + 'config/asset_library.yml'
+  AssetLibrary.root = Rails.public_path
+  AssetLibrary.app_root = Rails.root
 end
 
 namespace(:asset_library) do
@@ -16,10 +17,6 @@ namespace(:asset_library) do
   desc "Deletes all asset caches specified in config/asset.yml"
   task(:clean) do
     init_asset_library
-    keys = AssetLibrary.config.keys
-    asset_modules = keys.collect{|k| AssetLibrary.asset_module(k)}
-    asset_modules.each do |m|
-      FileUtils.rm_f(m.cache_asset.absolute_path)
-    end
+    AssetLibrary.delete_all_caches
   end
 end

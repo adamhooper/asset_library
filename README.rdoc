@@ -58,63 +58,66 @@ A cached module is simply the concatenation of its constituent files.
 A typical configuration (Yaml) file might look like this. In Rails, this
 should be in <tt>config/asset_library.yml</tt>.
 
-  javascripts:
-    cache: library
-    optional_suffix: compressed
-    base: javascripts
-    suffix: js
-    files:
-      - vendor/jquery
+  modules:
+    javascripts:
+      cache: library
+      optional_suffix: compressed
+      base: javascripts
+      suffix: js
+      files:
+        - vendor/jquery
 
-      # jQuery UI parts we need
-      - vendor/jquery-ui/ui.core
-      - vendor/jquery-ui/ui.draggable
-      - vendor/jquery-ui/ui.droppable
-      - vendor/jquery-ui/ui.sortable
-      - vendor/jquery-ui/effects.core
+        # jQuery UI parts we need
+        - vendor/jquery-ui/ui.core
+        - vendor/jquery-ui/ui.draggable
+        - vendor/jquery-ui/ui.droppable
+        - vendor/jquery-ui/ui.sortable
+        - vendor/jquery-ui/effects.core
 
-      - lib
-      - plugins/*
-      - application
-      - initializers/*
+        - lib
+        - plugins/*
+        - application
+        - initializers/*
 
-  tiny_mce_javascripts:
-    # TinyMCE doesn't give us a choice on cache name
-    cache: vendor/tiny_mce/tiny_mce_gzip
-    optional_suffix: compressed
-    base: javascripts
-    suffix: js
-    files:
-      - vendor/tiny_mce/tiny_mce
-      # ... it's possible to bundle all of TinyMCE together with a bit of magic
+    tiny_mce_javascripts:
+      # TinyMCE doesn't give us a choice on cache name
+      cache: vendor/tiny_mce/tiny_mce_gzip
+      optional_suffix: compressed
+      base: javascripts
+      suffix: js
+      files:
+        - vendor/tiny_mce/tiny_mce
+        # ... it's possible to bundle all of TinyMCE together with a bit of magic
 
-  stylesheets:
-    cache: library
-    base: stylesheets
-    suffix: css
-    formats:
-      - ie6: [null, ie8, ie7, ie6]
-      - ie7: [null, ie8, ie7]
-      - ie8: [null, ie8]
-    files:
-      - reset
-      - application
-      - layout
-      - views/**/*
+    stylesheets:
+      cache: library
+      base: stylesheets
+      suffix: css
+      formats:
+        - ie6: [null, ie8, ie7, ie6]
+        - ie7: [null, ie8, ie7]
+        - ie8: [null, ie8]
+      files:
+        - reset
+        - application
+        - layout
+        - views/**/*
 
   # in general...
-  #module_name:
-  #  cache: cache_file
-  #  base: base_path_of_assets_in_web_root
-  #  suffix: suffix ("css" or "js")
-  #  formats:
-  #    format1: ["extra_suffix_1", "extra_suffix_2"]
-  #    format2: [null, "extra_suffix3"]
-  #  optional_suffix: optional_suffix
-  #  files:
-  #    - file1_relative_to_base
-  #    - file2_relative_to_base
-  #    - ...
+  # modules:
+  #   module_name:
+  #     cache: cache_file
+  #     base: base_path_of_assets_in_web_root
+  #     suffix: suffix ("css" or "js")
+  #     formats:
+  #       format1: ["extra_suffix_1", "extra_suffix_2"]
+  #       format2: [null, "extra_suffix3"]
+  #     optional_suffix: optional_suffix
+  #     files:
+  #       - file1_relative_to_base
+  #       - file2_relative_to_base
+  #       - ...
+  #   ...
 
 Here are what the various configuration elements mean:
 
@@ -159,6 +162,51 @@ allowed; <tt>**</tt> expands to "any nesting of directories". Files which do
 not exist will be excluded; globbing will include/exclude files with
 <tt>formats</tt> as appropriate; and files without <tt>optional_suffix</tt>
 will not be output alongside files with the same name endowed with the suffix.
+
+== Compilers
+
+If you would like asset library to do more than just concatenate the
+files to produce your modules, then you need to specify a compiler.
+Asset Library currently ships with support for one compiler: Closure
+Compiler, and has an extendable framework to add more.
+
+To specify that a module is to be compiled with the Closure Compiler,
+use the <tt>compiler</tt> key for that module.  You may pass
+additional flags with the <tt>compiler_flags</tt> option:
+
+    modules:
+      javascripts:
+        cache: library
+        compiler: closure
+        compiler_flags: --warning_level QUIET
+        base: javascripts
+        suffix: js
+        files:
+          - javascripts/**/*
+
+You also need to configure the compiler by using a
+<tt>compilers.closure</tt> key:
+
+    compilers:
+      closure:
+        path: /path/to/closure.jar
+        flags: --warning_level QUIET
+
+The full list of Closure Compiler settings are:
+
+<tt>path</tt>: The path to the Closure Compiler jar.  This is
+mandatory.
+
+<tt>flags</tt>: Flags to pass to Closure Compiler.  These are combined
+with any per-module flags given via the <tt>compiler_flags</tt> option
+in the individual modules.  Default: no flags.
+
+<tt>java</tt>: The java command to use.  This will be searched for in
+the <tt>PATH</tt> unless it is an absolute filename.  Default:
+<tt>java</tt>.
+
+<tt>java_flags</tt>: Flags to pass to the java interpreter.  Default:
+no flags.
 
 == Copyright
 
