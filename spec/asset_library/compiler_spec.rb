@@ -2,6 +2,12 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe(AssetLibrary::Compiler) do
   Compiler = AssetLibrary::Compiler
+  include TemporaryDirectory
+
+  before do
+    AssetLibrary.app_root = "#{tmp}/app_root"
+    AssetLibrary.root = "#{tmp}/root"
+  end
 
   describe('.create') do
     it('should return a Default compiler for :default') do

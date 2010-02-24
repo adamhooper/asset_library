@@ -1,18 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe(AssetLibrary) do
-  before(:each) do
-    @old_root = AssetLibrary.root
-    @old_config_path = AssetLibrary.config_path
-    @old_cache = AssetLibrary.cache
-  end
-
-  after(:each) do
-    AssetLibrary.root = @old_root
-    AssetLibrary.config_path = @old_config_path
-    AssetLibrary.cache = @old_cache
-  end
-
   def config_skeleton
     {:modules => {}, :compilers => {}}
   end
@@ -97,6 +85,10 @@ describe(AssetLibrary) do
 
   describe('#compiler') do
     include TemporaryDirectory
+
+    before do
+      AssetLibrary.app_root = "#{tmp}/root"
+    end
 
     it('should return a Default compiler if no compiler type has been configured for the given asset module') do
       configure_compilers

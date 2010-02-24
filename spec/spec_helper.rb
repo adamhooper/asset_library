@@ -56,5 +56,18 @@ module CompilerHelpers
 end
 
 Spec::Runner.configure do |config|
-  config.before{AssetLibrary.reset!}
+  config.before do
+    @old_app_root = AssetLibrary.app_root
+    @old_root = AssetLibrary.root
+    @old_config_path = AssetLibrary.config_path
+    @old_cache = AssetLibrary.cache
+  end
+
+  config.after do
+    AssetLibrary.app_root = @app_root
+    AssetLibrary.root = @old_root
+    AssetLibrary.config_path = @old_config_path
+    AssetLibrary.cache = @old_cache
+    AssetLibrary.reset!
+  end
 end

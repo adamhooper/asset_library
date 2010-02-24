@@ -5,8 +5,8 @@ describe(AssetLibrary::Compiler::Closure) do
   include CompilerHelpers
 
   before do
-    AssetLibrary.root = "#{tmp}/root"
     AssetLibrary.app_root = "#{tmp}/app_root"
+    AssetLibrary.root = "#{tmp}/root"
   end
 
   def compiler(configuration = {})
