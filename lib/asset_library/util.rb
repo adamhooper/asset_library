@@ -1,3 +1,5 @@
+require 'shellwords'
+
 class AssetLibrary
   module Util
     class << self

@@ -1,4 +1,3 @@
-require 'shellwords'
 require File.dirname(__FILE__) + '/asset'
 
 class AssetLibrary
