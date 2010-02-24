@@ -1,0 +1,4 @@
+Version 0.5.0, 2010-02-24:
+  - Config change. Users must put their modules within a "modules:" section.
+    For now, old-style configuration files will work, but with a warning. (oggy)
+  - Support Google's Closure JavaScript compiler. (oggy)
