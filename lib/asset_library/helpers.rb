@@ -1,3 +1,5 @@
+require 'enumerator'
+
 class AssetLibrary
   module Helpers
     def asset_library_javascript_tags(module_key, format = nil)

@@ -5,6 +5,7 @@ rescue LoadError
   require 'glob_fu'
 end
 
+require 'yaml'
 require File.dirname(__FILE__) + '/asset_library/compiler'
 require File.dirname(__FILE__) + '/asset_library/asset_module'
 require File.dirname(__FILE__) + '/asset_library/util'
