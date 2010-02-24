@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{asset_library}
-  s.version = "0.4.0"
+  s.version = "0.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["adamh", "alegscogs"]
-  s.date = %q{2010-02-09}
+  s.authors = ["adamh", "alegscogs", "oggy"]
+  s.date = %q{2010-02-24}
   s.email = %q{adam@adamhooper.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -18,6 +18,10 @@ Gem::Specification.new do |s|
     "lib/asset_library.rb",
      "lib/asset_library/asset.rb",
      "lib/asset_library/asset_module.rb",
+     "lib/asset_library/compiler.rb",
+     "lib/asset_library/compiler/base.rb",
+     "lib/asset_library/compiler/closure.rb",
+     "lib/asset_library/compiler/default.rb",
      "lib/asset_library/helpers.rb",
      "lib/asset_library/rake_tasks.rb",
      "lib/asset_library/util.rb",
@@ -31,9 +35,14 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/asset_library_spec.rb",
      "spec/asset_library/asset_module_spec.rb",
+     "spec/asset_library/compiler/default_spec.rb",
+     "spec/asset_library/compiler/base_spec.rb",
+     "spec/asset_library/compiler/closure_spec.rb",
+     "spec/asset_library/compiler_spec.rb",
      "spec/asset_library/asset_spec.rb",
      "spec/asset_library/helpers_spec.rb",
-     "spec/spec_helper.rb"
+     "spec/spec_helper.rb",
+     "spec/integration_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
